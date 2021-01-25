@@ -1,0 +1,14 @@
+server:
+  port: 9001
+spring:
+  application:
+    name: openeuler‐base #指定服务名
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://101.32.203.164:3306/openeuler_base?characterEncoding=utf-8
+    username: root
+    password: XIAObbMIAOx3HeiHeiHei
+  jpa:
+    database: MySQL
+    show‐sql: true
+    generate‐ddl: true
