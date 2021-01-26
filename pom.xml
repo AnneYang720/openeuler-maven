@@ -11,6 +11,7 @@
         <module>openeuler_common</module>
         <module>openeuler_base</module>
         <module>openeuler_user</module>
+        <module>openeuler_storage</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -40,6 +41,7 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
 
 
         <!--<dependency>-->
