@@ -1,9 +1,6 @@
 package util;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Date;
@@ -65,5 +62,6 @@ public class JwtUtil {
                 .parseClaimsJws(jwtStr)
                 .getBody();
     }
+
 
 }

@@ -1,12 +1,10 @@
-package com.openeuler.user.config;
+package com.openeuler.storage.config;
 
-import com.openeuler.user.interceptor.JwtInterceptor;
+import com.openeuler.storage.interceptor.JwtInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
-
-
 
 @Configuration
 public class InterceptorConfig extends WebMvcConfigurationSupport {
@@ -16,9 +14,9 @@ public class InterceptorConfig extends WebMvcConfigurationSupport {
 
     @Override
     protected void addInterceptors(InterceptorRegistry registry) {
-        //注册拦截器：声明拦截器对象及拦截的请求（拦截器是谁，拦截器要干什么）
+        //注册拦截器：声明拦截器对象及拦截的请求
         registry.addInterceptor(jwtInterceptor)
-                .addPathPatterns("/**") //拦截所有路径
-                .excludePathPatterns("/**/login/**"); //但不拦截login登录的路径
+                .addPathPatterns("/**")
+                .excludePathPatterns("/**/login/**");
     }
 }

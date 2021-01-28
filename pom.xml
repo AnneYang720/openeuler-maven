@@ -12,6 +12,7 @@
         <module>openeuler_base</module>
         <module>openeuler_user</module>
         <module>openeuler_storage</module>
+        <module>openeuler_eureka</module>
     </modules>
     <packaging>pom</packaging>
 

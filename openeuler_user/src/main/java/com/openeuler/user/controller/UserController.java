@@ -32,13 +32,14 @@ public class UserController {
 
 
     /**
-     * 增加
+     * 管理员增加用户
+     *
      * @param user
      */
-    @RequestMapping(method=RequestMethod.POST)
+    @PostMapping("/add")
     public Result add(@RequestBody User user){
         userService.add(user);
-        return new Result(true, StatusCode.OK, "增加成功");
+        return new Result(true, StatusCode.OK, "管理员添加用户成功");
     }
 
     /**
@@ -70,7 +71,7 @@ public class UserController {
     public Result register(@RequestBody User user) {
         List<User> userList = userService.checkUser(user);
         if (userList == null || userList.isEmpty()) {
-            userService.add(user);
+            userService.register(user);
             return new Result(true, StatusCode.OK, "注册成功");
         } else {
             return new Result(false, StatusCode.ERROR, "注册失败，邮箱或用户名已经被使用");
@@ -88,50 +89,52 @@ public class UserController {
 
     /**
      * 根据ID查询
+     *
      * @param id ID
      * @return
      */
-    @RequestMapping(value="/{id}", method= RequestMethod.GET)
-    public Result findById(@PathVariable String id){
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public Result findById(@PathVariable String id) {
         return new Result(true, StatusCode.OK, "查询成功", userService.findById(id));
     }
 
-    /**
-     * 分页+多条件查询
-     * @param searchMap 查询条件封装
-     * @param page 页码
-     * @param size 页大小
-     * @return 分页结果
-     */
-    @RequestMapping(value="/search/{page}/{size}", method=RequestMethod.POST)
-    public Result findSearch(@RequestBody Map searchMap ,  @PathVariable int page,  @PathVariable int size){
-        Page<User> pageList = userService.findSearch(searchMap,  page,  size);
-        return  new Result(true, StatusCode.OK, "查询成功",   new PageResult<User>(pageList.getTotalElements(),  pageList.getContent()) );
-    }
+//    /**
+//     * 分页+多条件查询
+//     * @param searchMap 查询条件封装
+//     * @param page 页码
+//     * @param size 页大小
+//     * @return 分页结果
+//     */
+//    @RequestMapping(value="/search/{page}/{size}", method=RequestMethod.POST)
+//    public Result findSearch(@RequestBody Map searchMap ,  @PathVariable int page,  @PathVariable int size){
+//        Page<User> pageList = userService.findSearch(searchMap,  page,  size);
+//        return  new Result(true, StatusCode.OK, "查询成功",   new PageResult<User>(pageList.getTotalElements(),  pageList.getContent()) );
+//    }
+//
 
     /**
      * 根据条件查询
+     *
      * @param searchMap
      * @return
      */
-    @RequestMapping(value="/search", method = RequestMethod.POST)
-    public Result findSearch( @RequestBody Map searchMap){
+    @RequestMapping(value = "/search", method = RequestMethod.POST)
+    public Result findSearch(@RequestBody Map searchMap) {
         return new Result(true, StatusCode.OK, "查询成功", userService.findSearch(searchMap));
     }
 
     /**
-     * 修改
+     * 管理员修改
      * @param user
      */
     @RequestMapping(value="/{id}", method= RequestMethod.PUT)
-    public Result update(@RequestBody User user,  @PathVariable String id){
-        user.setId(id);
-        userService.update(user);
+    public Result update(@RequestBody User user,  @PathVariable String id) {
+        userService.updateById(user, id);
         return new Result(true, StatusCode.OK, "修改成功");
     }
 
     /**
-     * 修改当前用户登陆信息
+     * 当前登陆用户修改个人信息
      * @param user
      */
     @RequestMapping(value="/saveinfo", method= RequestMethod.PUT)

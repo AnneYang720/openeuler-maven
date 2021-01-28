@@ -33,13 +33,4 @@ public interface UserDao extends JpaRepository<User,String>,JpaSpecificationExec
      */
     List<User> findByLoginnameOrEmail(String loginname, String email);
 
-//    @Modifying
-//    @Query(value = "UPDATE tb_user SET fanscount=fanscount+? WHERE id = ?", nativeQuery = true)
-//    void updateFanscount(int x, String friendid);
-//
-//
-//    @Modifying
-//    @Query(value = "UPDATE tb_user SET followcount=followcount+? WHERE id = ?", nativeQuery = true)
-//    void updateFollowcount(int x, String userid);
-
 }

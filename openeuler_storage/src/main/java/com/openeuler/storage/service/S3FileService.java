@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import util.IdWorker;
+import io.jsonwebtoken.Claims;
+
+import javax.servlet.http.HttpServletRequest;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,16 +27,26 @@ public class S3FileService extends S3ClientService {
     @Autowired
     private IdWorker idWorker;
 
+    @Autowired
+    private HttpServletRequest request;
+
 
     // Upload image to AWS S3.
     // TODO: Verify uploaded file extension
     // TODO: Connect file with user
     public String uploadFileToAmazon(MultipartFile multipartFile, FileInfo fileInfo) {
-        fileInfo.setId(idWorker.nextId() + "");
+        //验证是否登录，如果登录就获取当前登录用户的ID
+        Claims claims = (Claims) request.getAttribute("claims_user");
+        if (claims == null) {//说明当前用户没有user角色
+            throw new RuntimeException("请登陆后再上传文件");
+        }
 
-        String url = uploadMultipartFile(multipartFile, fileInfo);
-        fileInfo.setFilename(url);
-        fileInfo.setUrl(getUrl().concat(url));
+        fileInfo.setId(idWorker.nextId() + "");
+        fileInfo.setUserId(claims.getId());
+
+        String filename = uploadMultipartFile(multipartFile, fileInfo);
+        fileInfo.setFilename(filename);
+        fileInfo.setUrl(getUrl().concat(filename));
         fileDao.save(fileInfo);
 
         // Save image information and return them.
@@ -58,21 +71,34 @@ public class S3FileService extends S3ClientService {
     }
 
     public void removeFile(FileInfo fileInfo) {
+        Claims claims = (Claims) request.getAttribute("claims_user");
+        if (claims == null) {//说明当前用户没有user角色
+            throw new RuntimeException("请登陆后再删除文件");
+        }
+        if (!claims.getId().equals(fileInfo.getUserId())) {
+            throw new RuntimeException("不能删除其他用户的文件");
+        }
         String fileName = fileInfo.getFilename();
         getClient().deleteObject(new DeleteObjectRequest(getBucketName(), fileName));
         fileDao.delete(fileInfo);
     }
 
     public void removeFile(String id) {
+        Claims claims = (Claims) request.getAttribute("claims_user");
+        if (claims == null) {//说明当前用户没有user角色
+            throw new RuntimeException("请登陆后再删除文件");
+        }
         Optional<FileInfo> fileInfo = fileDao.findById(id);
-        if(!fileInfo.isPresent()) return;
+        if (!fileInfo.isPresent()) return;
+        if (!claims.getId().equals(fileInfo.get().getUserId())) {
+            throw new RuntimeException("不能删除其他用户的文件");
+        }
         String fileName = fileInfo.get().getFilename();
         getClient().deleteObject(new DeleteObjectRequest(getBucketName(), fileName));
         fileDao.deleteById(id);
     }
 
     // Make upload to Amazon
-    // TODO: add maven url
     private String uploadMultipartFile(MultipartFile multipartFile, FileInfo fileInfo) {
         String fileUrl = "";
         String uploadUrl = "";

@@ -7,6 +7,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="openeuler_eureka" />
         <module name="openeuler_common" />
         <module name="openeuler_user" />
         <module name="openeuler_storage" />
@@ -18,6 +19,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="openeuler_base" options="-parameters" />
       <module name="openeuler_common" options="-parameters" />
+      <module name="openeuler_eureka" options="-parameters" />
       <module name="openeuler_storage" options="-parameters" />
       <module name="openeuler_user" options="-parameters" />
     </option>

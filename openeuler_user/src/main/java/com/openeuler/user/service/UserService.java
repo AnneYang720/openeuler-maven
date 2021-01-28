@@ -2,10 +2,7 @@ package com.openeuler.user.service;
 
 import com.openeuler.user.dao.UserDao;
 import com.openeuler.user.pojo.User;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,7 +15,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 服务层
@@ -46,6 +42,11 @@ public class UserService {
      * @return
      */
     public List<User> findAll() {
+        String token = (String) request.getAttribute("claims_admin");
+        System.out.println("token = " + token);
+        if (token == null || "".equals(token)) {
+            throw new RuntimeException("权限不足");
+        }
         return userDao.findAll();
     }
 
@@ -56,23 +57,23 @@ public class UserService {
      * @return
      */
     public List<User> checkUser(User user) {
-        return userDao.findByLoginnameOrEmail(user.getLoginname(), user.getEmail());
+        return userDao.findByLoginnameOrEmail(user.getLoginName(), user.getEmail());
     }
 
-    /**
-     * 条件查询+分页
-     *
-     * @param whereMap
-     * @param page
-     * @param size
-     * @return
-     */
-    public Page<User> findSearch(Map whereMap, int page, int size) {
-        Specification<User> specification = createSpecification(whereMap);
-        PageRequest pageRequest = PageRequest.of(page - 1, size);
-        return userDao.findAll(specification, pageRequest);
-    }
-
+//    /**
+//     * 条件查询+分页
+//     *
+//     * @param whereMap
+//     * @param page
+//     * @param size
+//     * @return
+//     */
+//    public Page<User> findSearch(Map whereMap, int page, int size) {
+//        Specification<User> specification = createSpecification(whereMap);
+//        PageRequest pageRequest = PageRequest.of(page - 1, size);
+//        return userDao.findAll(specification, pageRequest);
+//    }
+//
 
     /**
      * 条件查询
@@ -81,6 +82,10 @@ public class UserService {
      * @return
      */
     public List<User> findSearch(Map whereMap) {
+        String token = (String) request.getAttribute("claims_admin");
+        if (token == null || "".equals(token)) {
+            throw new RuntimeException("权限不足");
+        }
         Specification<User> specification = createSpecification(whereMap);
         return userDao.findAll(specification);
     }
@@ -96,13 +101,31 @@ public class UserService {
     }
 
     /**
-     * 增加
+     * 管理员增加用户
      *
      * @param user
      */
     public void add(User user) {
+        String token = (String) request.getAttribute("claims_admin");
+        System.out.println("token = " + token);
+        if (token == null || "".equals(token)) {
+            throw new RuntimeException("权限不足");
+        }
         user.setId(idWorker.nextId() + "");
         user.setPassword(encoder.encode(user.getPassword()));
+        user.setRegDate(new Date());
+        userDao.save(user);
+    }
+
+    /**
+     * 注册
+     *
+     * @param user
+     */
+    public void register(User user) {
+        user.setId(idWorker.nextId() + "");
+        user.setPassword(encoder.encode(user.getPassword()));
+        user.setRegDate(new Date());
         userDao.save(user);
     }
 
@@ -112,7 +135,49 @@ public class UserService {
      * @param user
      */
     public void update(User user) {
-        userDao.save(user);
+        String token = (String) request.getAttribute("claims_user");
+        if (!"user".equals(token)) {
+            throw new RuntimeException("非个人用户，不能修改");
+        }
+        String id = (String) request.getAttribute("user_id");
+        User oriUser = mergeUserInfo(user, id);
+        userDao.save(oriUser);
+    }
+
+
+    /**
+     * 管理员修改用户信息
+     *
+     * @param user
+     */
+    public void updateById(User user, String id) {
+        String token = (String) request.getAttribute("claims_admin");
+        if (token == null || "".equals(token)) {
+            throw new RuntimeException("权限不足");
+        }
+        User oriUser = mergeUserInfo(user, id);
+        userDao.save(oriUser);
+    }
+
+    /**
+     * 修改用户信息合并信息
+     *
+     * @param user
+     * @param id
+     */
+    public User mergeUserInfo(User user, String id) {
+        User oriUser = userDao.findById(id).get();
+        if (user.getPassword() != null && !"".equals(user.getPassword())) {
+            oriUser.setPassword(encoder.encode(user.getPassword()));
+        }
+        if (user.getEmail() != null && !"".equals(user.getEmail())) {
+            oriUser.setEmail(user.getEmail());
+        }
+        if (user.getLoginName() != null && !"".equals(user.getLoginName())) {
+            oriUser.setLoginName(user.getLoginName());
+        }
+        oriUser.setUpdatedate(new Date());
+        return oriUser;
     }
 
     /**
@@ -170,10 +235,14 @@ public class UserService {
 
     }
 
-
+    /**
+     * 登陆
+     *
+     * @param user
+     */
     public User login(User user) {
         //先根据用户名查询对象
-        List<User> userList = userDao.findByLoginnameOrEmail(user.getLoginname(), user.getEmail());
+        List<User> userList = userDao.findByLoginnameOrEmail(user.getLoginName(), user.getEmail());
         //将数据库中的密码与用户输入的密码进行比较
         if (userList != null && userList.size() == 1 && encoder.matches(user.getPassword(), userList.get(0).getPassword())) {
             //登录成功

@@ -4,6 +4,7 @@ package com.openeuler.user.pojo;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -13,18 +14,21 @@ import java.util.Date;
  *
  */
 @Entity
-@Table(name="tb_user")
-public class User implements Serializable{
+@Table(name = "tb_user")
+public class User implements Serializable {
 
     @Id
     private String id;//ID
-    private String loginname;//登录名
+    @NotNull
+    private String loginName;//登录名
+    @NotNull
     private String email;//E-Mail
+    @NotNull
     private String password;//密码
-    private String nickname;//昵称
-    private java.util.Date regdate;//注册日期
+    private java.util.Date regDate;//注册日期
     private java.util.Date updatedate;//修改日期
     private java.util.Date lastdate;//最后登陆日期
+//    private String nickname;//昵称
 //    private String sex;//性别
 //    private java.util.Date birthday;//出生年月日
 //    private String avatar;//头像
@@ -44,12 +48,12 @@ public class User implements Serializable{
         this.id = id;
     }
 
-    public String getLoginname() {
-        return loginname;
+    public String getLoginName() {
+        return loginName;
     }
 
-    public void setLoginname(String loginname) {
-        this.loginname = loginname;
+    public void setLoginName(String loginname) {
+        this.loginName = loginname;
     }
 
     public String getEmail() {
@@ -68,20 +72,12 @@ public class User implements Serializable{
         this.password = password;
     }
 
-    public String getNickname() {
-        return nickname;
+    public Date getRegDate() {
+        return regDate;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public Date getRegdate() {
-        return regdate;
-    }
-
-    public void setRegdate(Date regdate) {
-        this.regdate = regdate;
+    public void setRegDate(Date regdate) {
+        this.regDate = regdate;
     }
 
     public Date getUpdatedate() {

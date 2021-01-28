@@ -5,15 +5,20 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 @Entity
-@Table(name="tb_fileinfo")
-public class FileInfo {
+@Table(name = "tb_fileinfo")
+@IdClass(FileInfo.class)//指定联合主键
+public class FileInfo implements Serializable {
 
     @Id
     private String id;
+    @Id
+    private String userId;
 
     @NotNull
     private String url;
@@ -38,6 +43,14 @@ public class FileInfo {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getGroupId() {
