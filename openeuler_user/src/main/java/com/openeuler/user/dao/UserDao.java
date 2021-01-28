@@ -18,19 +18,20 @@ public interface UserDao extends JpaRepository<User,String>,JpaSpecificationExec
     /**
      * 根据用户名查询用户
      *
-     * @param loginname
+     * @param loginName
      * @return
      */
-    User findByLoginname(String loginname);
+    User findByLoginName(String loginName);
+
     User findByEmail(String mobile);
 
     /**
      * 查询数据库是否已经有相应的用户名或手机号
      *
-     * @param loginname 用户名
-     * @param email    邮箱
+     * @param loginName 用户名
+     * @param email     邮箱
      * @return
      */
-    List<User> findByLoginnameOrEmail(String loginname, String email);
+    List<User> findByLoginNameOrEmail(String loginName, String email);
 
 }

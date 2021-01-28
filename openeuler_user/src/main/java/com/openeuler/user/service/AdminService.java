@@ -3,8 +3,6 @@ package com.openeuler.user.service;
 import com.openeuler.user.dao.AdminDao;
 import com.openeuler.user.pojo.Admin;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +12,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,35 +35,55 @@ public class AdminService {
     @Autowired
     private BCryptPasswordEncoder encoder;
 
+    @Autowired
+    private HttpServletRequest request;
+
+    /**
+     * 鉴定管理员身份
+     *
+     * @return
+     */
+    public void adminAuthentication() {
+        String token = (String) request.getAttribute("claims_admin");
+        //System.out.println("token = " + token);
+        if (token == null || "".equals(token)) {
+            throw new RuntimeException("权限不足");
+        }
+    }
+
     /**
      * 查询全部列表
+     *
      * @return
      */
     public List<Admin> findAll() {
+        adminAuthentication();
         return adminDao.findAll();
     }
 
 
-    /**
-     * 条件查询+分页
-     * @param whereMap
-     * @param page
-     * @param size
-     * @return
-     */
-    public Page<Admin> findSearch(Map whereMap, int page, int size) {
-        Specification<Admin> specification = createSpecification(whereMap);
-        PageRequest pageRequest =  PageRequest.of(page-1, size);
-        return adminDao.findAll(specification, pageRequest);
-    }
+//    /**
+//     * 条件查询+分页
+//     * @param whereMap
+//     * @param page
+//     * @param size
+//     * @return
+//     */
+//    public Page<Admin> findSearch(Map whereMap, int page, int size) {
+//        Specification<Admin> specification = createSpecification(whereMap);
+//        PageRequest pageRequest =  PageRequest.of(page-1, size);
+//        return adminDao.findAll(specification, pageRequest);
+//    }
 
 
     /**
      * 条件查询
+     *
      * @param whereMap
      * @return
      */
     public List<Admin> findSearch(Map whereMap) {
+        adminAuthentication();
         Specification<Admin> specification = createSpecification(whereMap);
         return adminDao.findAll(specification);
     }
@@ -75,6 +94,7 @@ public class AdminService {
      * @return
      */
     public Admin findById(String id) {
+        adminAuthentication();
         return adminDao.findById(id).get();
     }
 
@@ -83,7 +103,8 @@ public class AdminService {
      * @param admin
      */
     public void add(Admin admin) {
-        admin.setId( idWorker.nextId()+"" );
+        adminAuthentication();
+        admin.setId(idWorker.nextId()+"" );
         //密码加密
         admin.setPassword(encoder.encode(admin.getPassword()));
         adminDao.save(admin);
@@ -91,17 +112,55 @@ public class AdminService {
 
     /**
      * 修改
+     *
      * @param admin
      */
     public void update(Admin admin) {
-        adminDao.save(admin);
+        adminAuthentication();
+        String id = (String) request.getAttribute("admin_id");
+        Admin oriAdmin = mergeAdminInfo(admin, id);
+        adminDao.save(oriAdmin);
+    }
+
+    /**
+     * 修改其他管理员信息
+     *
+     * @param admin
+     */
+    public void updateById(Admin admin, String id) {
+        adminAuthentication();
+        Admin oriAdmin = mergeAdminInfo(admin, id);
+        adminDao.save(oriAdmin);
+    }
+
+    /**
+     * 修改用户信息合并信息
+     *
+     * @param admin
+     * @param id
+     */
+    public Admin mergeAdminInfo(Admin admin, String id) {
+        Admin oriAdmin = adminDao.findById(id).get();
+        if (admin.getPassword() != null && !"".equals(admin.getPassword())) {
+            oriAdmin.setPassword(encoder.encode(admin.getPassword()));
+        }
+        if (admin.getLoginName() != null && !"".equals(admin.getLoginName())) {
+            Admin existUser = adminDao.findByLoginName(admin.getLoginName());
+            if (existUser != null) {
+                throw new RuntimeException("该用户名已被注册");
+            }
+            oriAdmin.setLoginName(admin.getLoginName());
+        }
+        return oriAdmin;
     }
 
     /**
      * 删除
+     *
      * @param id
      */
     public void deleteById(String id) {
+        adminAuthentication();
         adminDao.deleteById(id);
     }
 
@@ -143,7 +202,7 @@ public class AdminService {
 
     public Admin login(Admin admin) {
         //先根据用户名查询对象
-        Admin adminByDB = adminDao.findByLoginname(admin.getLoginname());
+        Admin adminByDB = adminDao.findByLoginName(admin.getLoginName());
         //将数据库中的密码与用户输入的密码进行比较
         if (adminByDB != null && encoder.matches(admin.getPassword(),adminByDB.getPassword())) {
             //登录成功

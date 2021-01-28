@@ -26,8 +26,8 @@ public class User implements Serializable {
     @NotNull
     private String password;//密码
     private java.util.Date regDate;//注册日期
-    private java.util.Date updatedate;//修改日期
-    private java.util.Date lastdate;//最后登陆日期
+    private java.util.Date updateDate;//修改日期
+    private java.util.Date lastDate;//最后登陆日期
 //    private String nickname;//昵称
 //    private String sex;//性别
 //    private java.util.Date birthday;//出生年月日
@@ -76,23 +76,23 @@ public class User implements Serializable {
         return regDate;
     }
 
-    public void setRegDate(Date regdate) {
-        this.regDate = regdate;
+    public void setRegDate(Date regDate) {
+        this.regDate = regDate;
     }
 
-    public Date getUpdatedate() {
-        return updatedate;
+    public Date getUpdateDate() {
+        return updateDate;
     }
 
-    public void setUpdatedate(Date updatedate) {
-        this.updatedate = updatedate;
+    public void setUpdateDate(Date updateDate) {
+        this.updateDate = updateDate;
     }
 
-    public Date getLastdate() {
-        return lastdate;
+    public Date getLastDate() {
+        return lastDate;
     }
 
-    public void setLastdate(Date lastdate) {
-        this.lastdate = lastdate;
+    public void setLastDate(Date lastdate) {
+        this.lastDate = lastdate;
     }
 }

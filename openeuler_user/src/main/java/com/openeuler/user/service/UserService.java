@@ -2,6 +2,8 @@ package com.openeuler.user.service;
 
 import com.openeuler.user.dao.UserDao;
 import com.openeuler.user.pojo.User;
+import entity.Result;
+import entity.StatusCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,6 +16,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.*;
 
 /**
@@ -37,16 +40,25 @@ public class UserService {
     private HttpServletRequest request;
 
     /**
+     * 鉴定管理员身份
+     *
+     * @return
+     */
+    public void adminAuthentication() {
+        String token = (String) request.getAttribute("claims_admin");
+        //System.out.println("token = " + token);
+        if (token == null || "".equals(token)) {
+            throw new RuntimeException("权限不足");
+        }
+    }
+
+    /**
      * 查询全部列表
      *
      * @return
      */
     public List<User> findAll() {
-        String token = (String) request.getAttribute("claims_admin");
-        System.out.println("token = " + token);
-        if (token == null || "".equals(token)) {
-            throw new RuntimeException("权限不足");
-        }
+        adminAuthentication();
         return userDao.findAll();
     }
 
@@ -57,7 +69,7 @@ public class UserService {
      * @return
      */
     public List<User> checkUser(User user) {
-        return userDao.findByLoginnameOrEmail(user.getLoginName(), user.getEmail());
+        return userDao.findByLoginNameOrEmail(user.getLoginName(), user.getEmail());
     }
 
 //    /**
@@ -82,10 +94,7 @@ public class UserService {
      * @return
      */
     public List<User> findSearch(Map whereMap) {
-        String token = (String) request.getAttribute("claims_admin");
-        if (token == null || "".equals(token)) {
-            throw new RuntimeException("权限不足");
-        }
+        adminAuthentication();
         Specification<User> specification = createSpecification(whereMap);
         return userDao.findAll(specification);
     }
@@ -106,11 +115,7 @@ public class UserService {
      * @param user
      */
     public void add(User user) {
-        String token = (String) request.getAttribute("claims_admin");
-        System.out.println("token = " + token);
-        if (token == null || "".equals(token)) {
-            throw new RuntimeException("权限不足");
-        }
+        adminAuthentication();
         user.setId(idWorker.nextId() + "");
         user.setPassword(encoder.encode(user.getPassword()));
         user.setRegDate(new Date());
@@ -136,7 +141,8 @@ public class UserService {
      */
     public void update(User user) {
         String token = (String) request.getAttribute("claims_user");
-        if (!"user".equals(token)) {
+        System.out.println("token = " + token);
+        if (token == null || "".equals(token)) {
             throw new RuntimeException("非个人用户，不能修改");
         }
         String id = (String) request.getAttribute("user_id");
@@ -151,10 +157,7 @@ public class UserService {
      * @param user
      */
     public void updateById(User user, String id) {
-        String token = (String) request.getAttribute("claims_admin");
-        if (token == null || "".equals(token)) {
-            throw new RuntimeException("权限不足");
-        }
+        adminAuthentication();
         User oriUser = mergeUserInfo(user, id);
         userDao.save(oriUser);
     }
@@ -170,13 +173,22 @@ public class UserService {
         if (user.getPassword() != null && !"".equals(user.getPassword())) {
             oriUser.setPassword(encoder.encode(user.getPassword()));
         }
+
         if (user.getEmail() != null && !"".equals(user.getEmail())) {
+            User existUser = userDao.findByEmail(user.getEmail());
+            if (existUser != null) {
+                throw new RuntimeException("该邮箱已被注册");
+            }
             oriUser.setEmail(user.getEmail());
         }
         if (user.getLoginName() != null && !"".equals(user.getLoginName())) {
+            User existUser = userDao.findByLoginName(user.getLoginName());
+            if (existUser != null) {
+                throw new RuntimeException("该用户名已被注册");
+            }
             oriUser.setLoginName(user.getLoginName());
         }
-        oriUser.setUpdatedate(new Date());
+        oriUser.setUpdateDate(new Date());
         return oriUser;
     }
 
@@ -186,11 +198,7 @@ public class UserService {
      * @param id
      */
     public void deleteById(String id) {
-        String token = (String) request.getAttribute("claims_admin");
-        System.out.println("token = " + token);
-        if (token == null || "".equals(token)) {
-            throw new RuntimeException("权限不足");
-        }
+        adminAuthentication();
         userDao.deleteById(id);
     }
 
@@ -242,7 +250,7 @@ public class UserService {
      */
     public User login(User user) {
         //先根据用户名查询对象
-        List<User> userList = userDao.findByLoginnameOrEmail(user.getLoginName(), user.getEmail());
+        List<User> userList = userDao.findByLoginNameOrEmail(user.getLoginName(), user.getEmail());
         //将数据库中的密码与用户输入的密码进行比较
         if (userList != null && userList.size() == 1 && encoder.matches(user.getPassword(), userList.get(0).getPassword())) {
             //登录成功
