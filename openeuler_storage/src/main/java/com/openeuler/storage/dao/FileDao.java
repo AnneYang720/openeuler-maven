@@ -21,8 +21,8 @@ public interface FileDao extends JpaRepository<FileInfo, String>, JpaSpecificati
      * @param id
      * @return
      */
-    public FileInfo findByUseridAndId(String userId, String id);
+    public FileInfo findByUserIdAndId(String userId, String id);
 
-    List<FileInfo> findByUserid(String userId);
+    List<FileInfo> findByUserId(String userId);
 
 }

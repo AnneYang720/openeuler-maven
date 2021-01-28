@@ -3,6 +3,8 @@ package com.openeuler.storage.service;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.amazonaws.HttpMethod;
 import com.openeuler.storage.dao.FileDao;
 import com.openeuler.storage.pojo.FileInfo;
 import com.openeuler.storage.util.FileUtils;
@@ -17,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
+import java.net.URL;
 
 @Service
 public class S3FileService extends S3ClientService {
@@ -68,6 +71,37 @@ public class S3FileService extends S3ClientService {
 //            return amazonImageDao.insert(amazonImage);
 //        }
 
+    }
+
+    // Create pre-signed upload url.
+    public String createUploadUrl(FileInfo fileInfo) {
+        //验证是否登录，如果登录就获取当前登录用户的ID
+        Claims claims = (Claims) request.getAttribute("claims_user");
+        if (claims == null) {//说明当前用户没有user角色
+            throw new RuntimeException("请登陆后再上传文件");
+        }
+
+        fileInfo.setId(idWorker.nextId() + "");
+        fileInfo.setUserId(claims.getId());
+
+        // Set the pre-signed URL to expire after one hour.
+        java.util.Date expiration = new java.util.Date();
+        long expTimeMillis = expiration.getTime();
+        expTimeMillis += 1000 * 60 * 60;
+        expiration.setTime(expTimeMillis);
+
+        // Generate the pre-signed URL.
+        System.out.println("Generating pre-signed URL.");
+        String filename = fileInfo.getArtifactId() + "-" + fileInfo.getVersion() + "." + fileInfo.getPackaging();
+        String objectKey = fileInfo.getGroupId().replace(".", "/") + "/" + fileInfo.getArtifactId() + "/" + fileInfo.getVersion() + "/" + filename;
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(getBucketName(), objectKey)
+                .withMethod(HttpMethod.PUT)
+                .withExpiration(expiration);
+        String uploadUrl = getClient().generatePresignedUrl(generatePresignedUrlRequest).toString();
+        fileInfo.setFilename(objectKey);
+        fileInfo.setUrl(getUrl().concat(filename));
+        fileDao.save(fileInfo);
+        return uploadUrl;
     }
 
     public void removeFile(FileInfo fileInfo) {

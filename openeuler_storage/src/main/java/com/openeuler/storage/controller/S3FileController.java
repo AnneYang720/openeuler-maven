@@ -38,17 +38,29 @@ public class S3FileController {
      */
     @PostMapping("/upload")
     public Result add(@RequestParam MultipartFile file,
-                      @RequestParam FileInfo fileInfo){
+                      @RequestParam FileInfo fileInfo) {
         String fileUrl = s3FileService.uploadFileToAmazon(file, fileInfo);
         return new Result(true, StatusCode.OK, "文件上传成功", fileUrl);
     }
 
     /**
+     * 通过URL直接上传
+     *
+     * @param fileInfo
+     */
+    @PostMapping("/directupload")
+    public Result directAdd(@RequestBody FileInfo fileInfo) {
+        String uploadUrl = s3FileService.createUploadUrl(fileInfo);
+        return new Result(true, StatusCode.OK, "预签名url创建成功", uploadUrl);
+    }
+
+    /**
      * 删除
+     *
      * @param id
      */
-    @RequestMapping (value="/{id}", method=RequestMethod.DELETE)
-    public Result delete(@PathVariable String id ){
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public Result delete(@PathVariable String id) {
         s3FileService.removeFile(id);
         return new Result(true, StatusCode.OK, "文件删除成功");
     }
