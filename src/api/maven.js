@@ -15,12 +15,19 @@ export default{
         });
     },
 
-    save(repo,pojo){
+    createURL(repo,pojo){
         return request({
             url: `/maven/${repo}`,
             method: 'post',
             data: pojo
         })
+    },
+
+    save(repo,pojo){
+        return request({
+            url: `/maven/save/${repo}`,
+            method: 'post',
+            data: pojo        })
     },
 
     deleteById(repo,id){
