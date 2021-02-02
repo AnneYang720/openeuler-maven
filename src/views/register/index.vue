@@ -1,31 +1,35 @@
 <template>
   <div class="login-container">
-    <el-form autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left" label-width="0px"
+    <el-form :model="registerForm" :rules="registerRules" ref="registerForm" label-position="left" label-width="0px"
       class="card-box login-form">
-      <h3 class="title">Maven私库管理登录</h3>
+      <h3 class="title">Maven私库用户注册</h3>
+
+      <el-form-item prop="loginName">
+        <span class="svg-container svg-container_login">
+          <svg-icon icon-class="user" />
+        </span>
+        <el-input name="loginName" type="text" v-model="registerForm.loginName" placeholder="用户名" />
+      </el-form-item>
+
       <el-form-item prop="email">
         <span class="svg-container svg-container_login">
           <svg-icon icon-class="user" />
         </span>
-        <el-input name="email" type="text" v-model="loginForm.email" autoComplete="on" placeholder="Email" />
+        <el-input name="email" type="text" v-model="registerForm.email" placeholder="Email" />
       </el-form-item>
+
       <el-form-item prop="password">
         <span class="svg-container">
           <svg-icon icon-class="password"></svg-icon>
         </span>
-        <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
+        <el-input name="password" :type="pwdType" v-model="registerForm.password" 
           placeholder="password"></el-input>
           <span class="show-pwd" @click="showPwd"><svg-icon icon-class="eye" /></span>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" style="width:40%;" :loading="loading" @click.native.prevent="handleLogin">
-          登录
+        <el-button type="primary" style="width:100%;" :loading="loading" @click.native.prevent="handleRegister">
+          注册
         </el-button>
-        <router-link to="/register"> 
-          <el-button type="primary" style="width:40%;">
-            注册
-          </el-button>
-        </router-link>
       </el-form-item>
     </el-form>
   </div>
@@ -33,9 +37,10 @@
 
 <script>
 import { isvalidEmail } from '@/utils/validate'
+import {register} from '@/api/login'
 
 export default {
-  name: 'login',
+  name: 'register',
   data() {
     const validateEmail = (rule, value, callback) => {
       if (!isvalidEmail(value)) {
@@ -52,11 +57,12 @@ export default {
       }
     }
     return{
-      loginForm: {
-        email: 'admin@gmail.com',
-        password: 'admin'
+      registerForm: {
+        loginName: '',
+        email: '',
+        password: ''
       },
-      loginRules: {
+      registerRules: {
         email: [{ required: true, trigger: 'blur', validator: validateEmail }],
         password: [{ required: true, trigger: 'blur', validator: validatePass }]
       },
@@ -72,20 +78,19 @@ export default {
         this.pwdType = 'password'
       }
     },
-    handleLogin() {
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('Login', this.loginForm).then(() => {
-            this.loading = false
-            this.$router.push({ path: '/' })
-          }).catch(() => {
-            this.loading = false
+    handleRegister() {
+      this.$refs.registerForm.validate(valid => {
+        if(valid){
+          register(this.registerForm).then(response =>{
+            this.$message({
+              message: response.message,
+              type: (response.flag ? 'success':'error')
+            });
+            if(response.flag){//如果成功
+              this.$router.push({ path: '/' })
+            }
           })
-        } else {
-          console.log('error submit!!')
-          return false
-        }
+        }  
       })
     }
   }

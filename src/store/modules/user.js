@@ -37,6 +37,7 @@ const user = {
           const data = response.data
           setToken(data.token)
           commit('SET_TOKEN', data.token)
+          commit('SET_ROLES', data.roles)
           resolve()
         }).catch(error => {
           reject(error)
@@ -49,9 +50,9 @@ const user = {
       return new Promise((resolve, reject) => {
         getInfo().then(response => {
           const data = response.data
-          commit('SET_ROLES', data.roles)
           commit('SET_LOGINNAME', data.loginName)
-          commit('SET_AVATAR', data.avatar)
+          //commit('SET_AVATAR', data.avatar)
+          commit('SET_AVATAR',"https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif")
           commit('SET_EMAIL', data.email)
           resolve(response)
         }).catch(error => {
@@ -61,7 +62,7 @@ const user = {
     },
 
     // 登出
-    LogOut({ commit, state }) {
+    LogOut({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
         // logout(state.token).then(() => {
           commit('SET_TOKEN', '')

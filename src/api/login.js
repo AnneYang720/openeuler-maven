@@ -26,6 +26,14 @@ export function updateInfo(pojo){
   })
 }
 
+export function register(pojo){
+  return request({
+      url: '/user/register',
+      method: 'post',
+      data: pojo
+  })
+}
+
 // export function getInfoById(userId) {
 //   return request({
 //     url: `/user/${userId}`,
