@@ -72,6 +72,23 @@ public class UserService {
         return userDao.findByLoginNameOrEmail(user.getLoginName(), user.getEmail());
     }
 
+    /**
+     * 获得当前用户信息
+     *
+     */
+    public User getInfo() {
+        String token = (String) request.getAttribute("claims_user");
+        System.out.println("token = " + token);
+        if (token == null || "".equals(token)) {
+            throw new RuntimeException("登录超时");
+        }
+        String id = (String) request.getAttribute("user_id");
+        User currUser = userDao.findById(id).get();
+        currUser.setId("");
+        currUser.setPassword("");
+        return currUser;
+    }
+
 //    /**
 //     * 条件查询+分页
 //     *
@@ -147,6 +164,7 @@ public class UserService {
         }
         String id = (String) request.getAttribute("user_id");
         User oriUser = mergeUserInfo(user, id);
+        oriUser.setUpdateDate(new Date());
         userDao.save(oriUser);
     }
 
@@ -159,6 +177,7 @@ public class UserService {
     public void updateById(User user, String id) {
         adminAuthentication();
         User oriUser = mergeUserInfo(user, id);
+        oriUser.setUpdateDate(new Date());
         userDao.save(oriUser);
     }
 
@@ -188,7 +207,6 @@ public class UserService {
             }
             oriUser.setLoginName(user.getLoginName());
         }
-        oriUser.setUpdateDate(new Date());
         return oriUser;
     }
 
@@ -254,6 +272,8 @@ public class UserService {
         //将数据库中的密码与用户输入的密码进行比较
         if (userList != null && userList.size() == 1 && encoder.matches(user.getPassword(), userList.get(0).getPassword())) {
             //登录成功
+            userList.get(0).setLastDate(new Date());
+            userDao.save(userList.get(0));
             return userList.get(0);
         }
         //登录失败

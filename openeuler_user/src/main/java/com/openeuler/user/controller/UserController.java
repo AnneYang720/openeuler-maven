@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import util.JwtUtil;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,18 +31,6 @@ public class UserController {
     @Autowired
     private JwtUtil jwtUtil;
 
-
-    /**
-     * 管理员增加用户
-     *
-     * @param user
-     */
-    @PostMapping("/add")
-    public Result add(@RequestBody User user){
-        userService.add(user);
-        return new Result(true, StatusCode.OK, "管理员添加用户成功");
-    }
-
     /**
      * 用户登录
      * @param user
@@ -57,7 +46,7 @@ public class UserController {
         String token = jwtUtil.createJWT(user.getId(), user.getEmail(), "user");
         Map<String, Object> map = new HashMap<>();
         map.put("token", token);
-        map.put("roles", "user");
+        map.put("roles", Arrays.asList("user"));
         return new Result(true, StatusCode.OK, "登录成功", map);
     }
 
@@ -77,6 +66,39 @@ public class UserController {
             return new Result(false, StatusCode.ERROR, "注册失败，邮箱或用户名已经被使用");
         }
     }
+
+    /**
+     * 当前用户获得本人信息
+     *
+     * @return
+     */
+    @RequestMapping(value = "/info", method = RequestMethod.GET)
+    public Result getInfo() {
+        return new Result(true, StatusCode.OK, "查询成功", userService.getInfo());
+    }
+
+    /**
+     * 当前登陆用户修改个人信息
+     * @param user
+     */
+    @RequestMapping(value="/saveinfo", method= RequestMethod.PUT)
+    public Result updateInfo(@RequestBody User user){
+        // user.setId(parseToken(token))
+        userService.update(user);
+        return new Result(true, StatusCode.OK, "修改成功");
+    }
+
+    /**
+     * 管理员增加用户
+     *
+     * @param user
+     */
+    @PostMapping("/add")
+    public Result add(@RequestBody User user){
+        userService.add(user);
+        return new Result(true, StatusCode.OK, "管理员添加用户成功");
+    }
+
 
     /**
      * 查询全部数据
@@ -133,16 +155,7 @@ public class UserController {
         return new Result(true, StatusCode.OK, "修改成功");
     }
 
-    /**
-     * 当前登陆用户修改个人信息
-     * @param user
-     */
-    @RequestMapping(value="/saveinfo", method= RequestMethod.PUT)
-    public Result updateInfo(@RequestBody User user){
-        // user.setId(parseToken(token))
-        userService.update(user);
-        return new Result(true, StatusCode.OK, "修改成功");
-    }
+
 
     /**
      * 删除

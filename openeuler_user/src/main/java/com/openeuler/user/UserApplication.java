@@ -5,12 +5,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import util.IdWorker;
 import util.JwtUtil;
 
 
 @SpringBootApplication
 @EnableEurekaClient
+@CrossOrigin
 public class UserApplication {
 
     public static void main(String[] args) {
