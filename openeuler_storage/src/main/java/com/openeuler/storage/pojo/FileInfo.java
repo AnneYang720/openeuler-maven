@@ -9,6 +9,7 @@ import javax.persistence.IdClass;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "tb_fileinfo")
@@ -21,13 +22,16 @@ public class FileInfo implements Serializable {
     private String userId;
 
     @NotNull
-    private String url;
+    private String jarUrl;
+    @NotNull
+    private String pomUrl;
 
+    private String repo;
     private String groupId;
     private String artifactId;
     private String version;
     private String packaging;
-    private String filename;
+    private java.util.Date updateDate;
 
     public String getId() {
         return id;
@@ -37,12 +41,28 @@ public class FileInfo implements Serializable {
         this.id = id;
     }
 
-    public String getUrl() {
-        return url;
+    public String getJarUrl() {
+        return jarUrl;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setJarUrl(String jarUrl) {
+        this.jarUrl = jarUrl;
+    }
+
+    public String getPomUrl() {
+        return pomUrl;
+    }
+
+    public void setPomUrl(String pomUrl) {
+        this.pomUrl = pomUrl;
+    }
+
+    public String getRepo() {
+        return repo;
+    }
+
+    public void setRepo(String repo) {
+        this.repo = repo;
     }
 
     public String getUserId() {
@@ -85,11 +105,11 @@ public class FileInfo implements Serializable {
         this.packaging = packaging;
     }
 
-    public String getFilename() {
-        return filename;
+    public Date getUpdateDate() {
+        return updateDate;
     }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
+    public void setUpdateDate(Date updateDate) {
+        this.updateDate = updateDate;
     }
 }

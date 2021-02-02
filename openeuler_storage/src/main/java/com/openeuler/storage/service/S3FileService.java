@@ -18,8 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Optional;
-import java.net.URL;
 
 @Service
 public class S3FileService extends S3ClientService {
@@ -48,14 +48,14 @@ public class S3FileService extends S3ClientService {
         fileInfo.setUserId(claims.getId());
 
         String filename = uploadMultipartFile(multipartFile, fileInfo);
-        fileInfo.setFilename(filename);
-        fileInfo.setUrl(getUrl().concat(filename));
+        //fileInfo.setFilename(filename);
+        //fileInfo.setUrl(getUrl().concat(filename));
         fileDao.save(fileInfo);
 
         // Save image information and return them.
         //AmazonImage amazonImage = new AmazonImage();
         //amazonImage.setUrl(url);
-        return fileInfo.getUrl();
+        return fileInfo.getJarUrl();
 
 //        // Valid extensions array, like jpeg/jpg and png.
 //        List<String> validExtensions = Arrays.asList("jpeg", "jpg", "png");
@@ -74,15 +74,15 @@ public class S3FileService extends S3ClientService {
     }
 
     // Create pre-signed upload url.
-    public String createUploadUrl(FileInfo fileInfo) {
+    public String[] createUploadUrl(FileInfo fileInfo, String repo) {
         //验证是否登录，如果登录就获取当前登录用户的ID
         Claims claims = (Claims) request.getAttribute("claims_user");
         if (claims == null) {//说明当前用户没有user角色
             throw new RuntimeException("请登陆后再上传文件");
         }
 
-        fileInfo.setId(idWorker.nextId() + "");
-        fileInfo.setUserId(claims.getId());
+        //fileInfo.setId(idWorker.nextId() + "");
+        //fileInfo.setUserId(claims.getId());
 
         // Set the pre-signed URL to expire after one hour.
         java.util.Date expiration = new java.util.Date();
@@ -92,16 +92,43 @@ public class S3FileService extends S3ClientService {
 
         // Generate the pre-signed URL.
         System.out.println("Generating pre-signed URL.");
-        String filename = fileInfo.getArtifactId() + "-" + fileInfo.getVersion() + "." + fileInfo.getPackaging();
-        String objectKey = fileInfo.getGroupId().replace(".", "/") + "/" + fileInfo.getArtifactId() + "/" + fileInfo.getVersion() + "/" + filename;
-        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(getBucketName(), objectKey)
+        String filename = fileInfo.getArtifactId() + "-" + fileInfo.getVersion()+".";
+
+        String objectKeyJAR = repo+"/"+fileInfo.getGroupId().replace(".", "/") + "/" + fileInfo.getArtifactId() + "/" + fileInfo.getVersion() + "/" + filename + fileInfo.getPackaging();
+        GeneratePresignedUrlRequest generatePresignedUrlRequestJAR = new GeneratePresignedUrlRequest(getBucketName(), objectKeyJAR)
                 .withMethod(HttpMethod.PUT)
                 .withExpiration(expiration);
-        String uploadUrl = getClient().generatePresignedUrl(generatePresignedUrlRequest).toString();
-        fileInfo.setFilename(objectKey);
-        fileInfo.setUrl(getUrl().concat(filename));
+        String uploadJARUrl = getClient().generatePresignedUrl(generatePresignedUrlRequestJAR).toString();
+
+        String objectKeyPOM = repo+"/"+fileInfo.getGroupId().replace(".", "/") + "/" + fileInfo.getArtifactId() + "/" + fileInfo.getVersion() + "/" + filename + "pom";
+        GeneratePresignedUrlRequest generatePresignedUrlRequestPOM = new GeneratePresignedUrlRequest(getBucketName(), objectKeyPOM)
+                .withMethod(HttpMethod.PUT)
+                .withExpiration(expiration);
+        String uploadPOMUrl = getClient().generatePresignedUrl(generatePresignedUrlRequestPOM).toString();
+
+//        fileInfo.setFilename(objectKey);
+//        fileInfo.setUrl(getUrl().concat(filename));
+//        fileDao.save(fileInfo);
+//        return uploadUrl;
+        return new String[] {uploadJARUrl,uploadPOMUrl};
+    }
+
+    public void saveInfo(FileInfo fileInfo, String repo) {
+        //验证是否登录，如果登录就获取当前登录用户的ID
+        Claims claims = (Claims) request.getAttribute("claims_user");
+        if (claims == null) {//说明当前用户没有user角色
+            throw new RuntimeException("请登陆后再上传文件");
+        }
+
+        fileInfo.setId(idWorker.nextId() + "");
+        fileInfo.setUserId(claims.getId());
+        fileInfo.setUpdateDate(new Date());
+        fileInfo.setRepo(repo);
+        String filename = fileInfo.getArtifactId() + "-" + fileInfo.getVersion()+".";
+        String objectKeyPOM = repo+"/"+fileInfo.getGroupId().replace(".", "/") + "/" + fileInfo.getArtifactId() + "/" + fileInfo.getVersion() + "/" + filename;
+        fileInfo.setJarUrl(getUrl().concat(objectKeyPOM+fileInfo.getPackaging()));
+        fileInfo.setPomUrl(getUrl().concat(objectKeyPOM+"pom"));
         fileDao.save(fileInfo);
-        return uploadUrl;
     }
 
     public void removeFile(FileInfo fileInfo) {
@@ -112,7 +139,8 @@ public class S3FileService extends S3ClientService {
         if (!claims.getId().equals(fileInfo.getUserId())) {
             throw new RuntimeException("不能删除其他用户的文件");
         }
-        String fileName = fileInfo.getFilename();
+        //String fileName = fileInfo.getFilename();
+        String fileName = "";
         getClient().deleteObject(new DeleteObjectRequest(getBucketName(), fileName));
         fileDao.delete(fileInfo);
     }
@@ -127,7 +155,8 @@ public class S3FileService extends S3ClientService {
         if (!claims.getId().equals(fileInfo.get().getUserId())) {
             throw new RuntimeException("不能删除其他用户的文件");
         }
-        String fileName = fileInfo.get().getFilename();
+        //String fileName = fileInfo.get().getFilename();
+        String fileName = "";
         getClient().deleteObject(new DeleteObjectRequest(getBucketName(), fileName));
         fileDao.deleteById(id);
     }

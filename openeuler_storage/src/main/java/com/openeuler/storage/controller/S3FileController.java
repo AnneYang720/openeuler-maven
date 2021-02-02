@@ -8,12 +8,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @CrossOrigin
-@RequestMapping("/storage")
+@RequestMapping("/maven")
 public class S3FileController {
     @Autowired
     private S3FileService s3FileService;
+
+    /**
+     * 创建直接上传的URL
+     *
+     * @param fileInfo
+     */
+    @PostMapping(value = "/{repo}")
+    public Result createURL(@PathVariable String repo, @RequestBody FileInfo fileInfo) {
+        String[] result = s3FileService.createUploadUrl(fileInfo, repo);
+        Map<String, String> map = new HashMap<>();
+        map.put("uploadJARUrl", result[0]);
+        map.put("uploadPOMUrl", result[1]);
+        return new Result(true, StatusCode.OK, "预签名url创建成功", map);
+    }
+
+    /**
+     * 创建直接上传的URL
+     *
+     * @param fileInfo
+     */
+    @PostMapping(value = "/save/{repo}")
+    public Result saveInfo(@PathVariable String repo, @RequestBody FileInfo fileInfo) {
+        s3FileService.saveInfo(fileInfo, repo);
+        return new Result(true, StatusCode.OK, "文件信息保存成功");
+    }
 
     /**
      * 增加
@@ -43,16 +71,16 @@ public class S3FileController {
         return new Result(true, StatusCode.OK, "文件上传成功", fileUrl);
     }
 
-    /**
-     * 通过URL直接上传
-     *
-     * @param fileInfo
-     */
-    @PostMapping("/directupload")
-    public Result directAdd(@RequestBody FileInfo fileInfo) {
-        String uploadUrl = s3FileService.createUploadUrl(fileInfo);
-        return new Result(true, StatusCode.OK, "预签名url创建成功", uploadUrl);
-    }
+//    /**
+//     * 通过URL直接上传
+//     *
+//     * @param fileInfo
+//     */
+//    @PostMapping("/directupload")
+//    public Result directAdd(@RequestBody FileInfo fileInfo) {
+//        String uploadUrl = s3FileService.createUploadUrl(fileInfo);
+//        return new Result(true, StatusCode.OK, "预签名url创建成功", uploadUrl);
+//    }
 
     /**
      * 删除
