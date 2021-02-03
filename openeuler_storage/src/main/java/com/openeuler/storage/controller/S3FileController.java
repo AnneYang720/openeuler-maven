@@ -1,11 +1,13 @@
 package com.openeuler.storage.controller;
 
 import com.openeuler.storage.pojo.FileInfo;
+import entity.PageResult;
 import entity.Result;
 import entity.StatusCode;
 import com.openeuler.storage.service.S3FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
@@ -43,15 +45,30 @@ public class S3FileController {
         return new Result(true, StatusCode.OK, "文件信息保存成功");
     }
 
+//    /**
+//     * 分页+多条件查询
+//     * @param searchMap 查询条件封装
+//     * @param page 页码
+//     * @param size 页大小
+//     * @return 分页结果
+//     */
+//    @RequestMapping(value="/{repo}/search/{page}/{size}", method=RequestMethod.POST)
+//    public Result findSearch(@RequestBody Map searchMap , @PathVariable String repo ,@PathVariable int page,  @PathVariable int size){
+//        Page<FileInfo> pageList = S3FileService.findSearch(searchMap, repo, page, size);
+//        return  new Result(true, StatusCode.OK, "查询成功",   new PageResult<FileInfo>(pageList.getTotalElements(),  pageList.getContent()) );
+//    }
+
+
     /**
      * 增加
+     *
      * @param file
      * @param pomFile
      * @param fileInfo
      */
     @PostMapping("/uploadboth")
     public Result add(@RequestParam MultipartFile file, @RequestParam MultipartFile pomFile,
-                      @RequestParam FileInfo fileInfo){
+                      @RequestParam FileInfo fileInfo) {
 
         String fileUrl = s3FileService.uploadFileToAmazon(file, fileInfo);
         fileInfo.setPackaging("pom");

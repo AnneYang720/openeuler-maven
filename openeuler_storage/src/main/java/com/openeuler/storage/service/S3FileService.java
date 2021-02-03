@@ -8,18 +8,26 @@ import com.amazonaws.HttpMethod;
 import com.openeuler.storage.dao.FileDao;
 import com.openeuler.storage.pojo.FileInfo;
 import com.openeuler.storage.util.FileUtils;
+import com.openeuler.user.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 import util.IdWorker;
 import io.jsonwebtoken.Claims;
 
+import java.util.*;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
-import java.util.Optional;
 
 @Service
 public class S3FileService extends S3ClientService {
@@ -197,5 +205,54 @@ public class S3FileService extends S3ClientService {
     private void uploadPublicFile(String fileName, File file) {
         getClient().putObject(new PutObjectRequest(getBucketName(), fileName, file)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
+    }
+
+//    /**
+//     * 条件查询+分页
+//     *
+//     * @param whereMap
+//     * @param page
+//     * @param size
+//     * @return
+//     */
+//    public Page<FileInfo> findSearch(Map whereMap, String repo, int page, int size) {
+//        //验证是否登录，如果登录就获取当前登录用户的ID
+//        Claims claims = (Claims) request.getAttribute("claims_user");
+//        if (claims == null) {//说明当前用户没有user角色
+//            throw new RuntimeException("请登陆后再上传文件");
+//        }
+//        String userId = claims.getId();
+//        Specification<FileInfo> specification = createSpecification(whereMap,repo,userId);
+//        PageRequest pageRequest = PageRequest.of(page - 1, size);
+//        return FileDao.findAll(specification, pageRequest);
+//    }
+
+    /**
+     * 动态条件构建
+     *
+     * @param searchMap
+     * @return
+     */
+    private Specification<FileInfo> createSpecification(Map searchMap, String repo, String userId) {
+
+        return new Specification<FileInfo>() {
+
+            @Override
+            public Predicate toPredicate(Root<FileInfo> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                List<Predicate> predicateList = new ArrayList<Predicate>();
+                // userId
+                if (searchMap.get("userId") != null && !"".equals(searchMap.get("userId"))) {
+                    predicateList.add(cb.like(root.get("id").as(String.class), "%" + (String) searchMap.get("id") + "%"));
+                }
+                // repo
+                if (searchMap.get("repo") != null && !"".equals(searchMap.get("repo"))) {
+                    predicateList.add(cb.like(root.get("id").as(String.class), "%" + (String) searchMap.get("id") + "%"));
+                }
+
+                return cb.and(predicateList.toArray(new Predicate[predicateList.size()]));
+
+            }
+        };
+
     }
 }
