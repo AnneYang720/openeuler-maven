@@ -35,5 +35,5 @@ export default{
             url:`/maven/${repo}/${id}`,
             method:'delete'
         })
-    }
+    },
 } 

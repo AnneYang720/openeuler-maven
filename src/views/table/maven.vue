@@ -16,16 +16,22 @@
       :cell-style="{padding:0+'px','text-align':'center'}"
       align="center"
       border
+      @row-click="rowClick"
       style="width: 90%">
       <el-table-column
         prop="groupId"
-        label="包名"
-        width="180">
+        label="GroupId"
+        width="150">
+      </el-table-column>
+      <el-table-column
+        prop="artifactId"
+        label="ArtifactId"
+        width="150">
       </el-table-column>
       <el-table-column
         prop="latestversion"
         label="最新版本"
-        width="180">
+        width="120">
       </el-table-column>
       <el-table-column
         prop="updatetime"
@@ -92,7 +98,7 @@
             ref="uploadPOM"
             :action="uploadPOMUrl"
             :multiple="false"
-            accept=".pom"
+            accept=".xml"
             :auto-upload="false"
             :show-file-list="true"
             :file-list="POMfileList"
@@ -106,6 +112,57 @@
         <el-button type="primary" @click="handleUpload()">上 传</el-button>
       </span>
     </el-dialog>
+
+    <!-- 弹出窗口 -->
+    <el-dialog
+      :title="packageName" 
+      :visible.sync="detailVisible"
+      width="40%"
+      >
+      <div>
+      <div> 推送人 {{loginName}} </div>
+      <div></div>
+      <div> 推送时间 {{uploadDate}} </div>
+      <div></div>
+      <div> 版本
+      <el-select v-model="getInfoForm.version" @change="urlChange">
+        <el-option v-for="item in vList" :label="item.value" :key="item.value" :value="item.value"/>
+      </el-select>
+      </div>
+      <div></div>
+
+      <el-table
+        :data="urllist"
+        :row-style="{height:0+'px'}"
+        :header-cell-style="{'text-align':'center'}"
+        :cell-style="{padding:0+'px','text-align':'center'}"
+        align="center"
+        border
+        style="width: 90%">
+        <el-table-column
+          prop="filename"
+          label="文件名">
+        </el-table-column>
+        <el-table-column
+          fixed="right"
+          label="操作">
+
+          <template slot-scope="scope">
+          <a @click="downFile(scope.row.downloadurl)">下载</a>
+          </template>
+    
+          <!-- <template slot-scope="scope">
+            <el-button @click="handleDownload(scope.row.downloadurl)" type="text" size="small">下载</el-button>
+          </template> -->
+        </el-table-column>
+      </el-table>
+
+
+      <el-button @click="handleDelVersion()" type="text" size="small">删除此版本</el-button>
+
+    </div>
+    </el-dialog>
+
   </div>
 </template>
 <script>
@@ -117,29 +174,41 @@ import {pFileReader} from '@/utils/filereader'
 export default {
     data(){
         return {
-          list:[],
-          total: 0,
-          currentPage: 1,
-          pageSize: 10,
-          searchMap: {},
-          dialogVisible: false,
-          saveFlag:true,
-          JARfileList: [],
-          POMfileList: [],
-          uploadJARUrl: '',
-          uploadPOMUrl: '',
+          loginName: 'aaa', //当前用户昵称
+          uploadDate: 'bbb', //当前文件的上传时间
+          list:[], //首页用包名得到的列表
+          urllist:[], //jar,pom包的下载地址
+          total: 0, //总页数
+          currentPage: 1, //当前页数
+          pageSize: 10, //每页条数
+          searchMap: {}, //搜索Map
+          dialogVisible: false, //新建包的弹出框
+          detailVisible: false, //点开某行展示具体内容的弹出框
+          saveFlag:true, //两个文件通过url直接上传是否成功
+          JARfileList: [], //用户上传的jar文件
+          POMfileList: [], //用户上传的pom文件
+          uploadJARUrl: '', //后端返回的jar上传url
+          uploadPOMUrl: '', //后端返回的pom上传url
+          packageName: '', //当前点开行的包名
+          vList: '', //记录某一行的versionList
           uploadForm: {
             groupId: '',
             artifactId: '',
             version: '',
-            packaging: ''
+            packaging: '',
+          },
+          getInfoForm: {
+            groupId: '',
+            artifactId: '',
+            version: ''
           },
           uploadRules: {
             groupId: [{ required: true, message: '请输入groupId', trigger: 'blur'}],
             artifactId: [{ required: true, message: '请输入artifactId', trigger: 'blur'}],
             version: [{ required: true, message: '请输入version', trigger: 'blur'}],
             packaging: [{ required: true, message: '请输入packaging', trigger: 'blur'}]
-          }
+          },
+          
         }
     },
     created () {
@@ -150,6 +219,7 @@ export default {
             mavenApi.search(this.$router.currentRoute.name,this.currentPage,this.pageSize,this.searchMap).then(response =>{
                 this.total = response.data.total
                 this.list = response.data.rows
+                this.urllist = response.data.urls
             }).catch(() => {
                 this.total = 0
                 this.list = []
@@ -219,7 +289,6 @@ export default {
           this.dialogVisible = false // 关闭窗口
         },
 
-
         handleDel(id){
             this.$confirm('您确定要删除此记录吗?', '提示', {
             confirmButtonText: '确定',
@@ -238,7 +307,25 @@ export default {
           }).catch(() => {
           });
         },
+
+        // handleDownload(downloadurl){
+        //   let e = axios.post(this.uploadJARUrl, new Buffer(e.target.result, 'binary'))
+        // },
         
+        downFile (downloadurl) {
+          //console.log(downloadurl)
+          var ele = document.createElement('a')
+          ele.download = downloadurl
+          ele.style.display = 'none';
+          ele.href = downloadurl
+          ele.target="_blank"; // 针对 ie模式 的浏览器
+          // 触发点击
+          document.body.appendChild(ele);
+          ele.click();
+          // 然后移除
+          document.body.removeChild(ele);
+        },
+
         beforeUploadJAR(){
           if(this.JARfileList.length==0){
             this.$message.error('jar文件必须上传')
@@ -258,7 +345,7 @@ export default {
             return false
           }
           const fileType = this.POMfileList[0].name.substring(this.POMfileList[0].name.lastIndexOf('.'))
-          if (fileType.toLowerCase() != '.pom') {
+          if (fileType.toLowerCase() != '.xml') {
             this.$message.error('文件必须为pom类型')
             return false
           }
@@ -285,7 +372,33 @@ export default {
           return dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate() + ' ' + dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds()
         },
 
+        //监听row-click事件，实现选中
+        rowClick(row, column, event) {
+          this.detailVisible = true
+          this.packageName = row.groupId+":"+row.artifactId
+          this.vList = row.versionList
+          this.getInfoForm.version = row.latestversion//this.vList[0].value
+          this.getInfoForm.groupId = row.groupId
+          this.getInfoForm.artifactId = row.artifactId
+        },
 
+        //更改版本后获得新的url
+        urlChange(){
+          console.log(this.selectedVersion)
+          // mavenApi.getURL(this.$router.currentRoute.name, this.uploadForm, ).then(async(response) => {
+          //         if(response.flag){
+          //           this.uploadJARUrl = response.data.uploadJARUrl
+          //           this.uploadPOMUrl = response.data.uploadPOMUrl
+
+          //           let e = await pFileReader(this.JARfileList[0].raw)
+          //           let res = await axios.put(this.uploadJARUrl, new Buffer(e.target.result, 'binary'))
+          //           console.log(res)
+          //           if(res.status!=200){
+          //             this.saveFlag = false
+          //             this.$message.error('JAR文件上传失败')
+          //             throw new Error('JAR文件上传失败！')
+          //           }
+        },
 
 
 
@@ -296,5 +409,5 @@ export default {
       '$route': 'fetchData'
     }
 }
+      
 </script>
-
