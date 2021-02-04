@@ -29,17 +29,17 @@
         width="150">
       </el-table-column>
       <el-table-column
-        prop="latestversion"
+        prop="latestVersion"
         label="最新版本"
-        width="120">
+        width="160">
       </el-table-column>
       <el-table-column
-        prop="updatetime"
+        prop="updateTime"
         label="最近更新时间"
         :formatter="formatDate">
       </el-table-column>
       <el-table-column
-        prop="versionnum"
+        prop="versionNum"
         label="版本数">
       </el-table-column>
       <el-table-column
@@ -47,7 +47,7 @@
         label="操作"
         width="100">
         <template slot-scope="scope">
-          <el-button @click="handleDel(scope.row.id)" type="text" size="small">删除</el-button>
+          <el-button @click.native.stop="handleDel(scope.row)" type="text" size="small">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -125,8 +125,8 @@
       <div> 推送时间 {{uploadDate}} </div>
       <div></div>
       <div> 版本
-      <el-select v-model="getInfoForm.version" @change="urlChange">
-        <el-option v-for="item in vList" :label="item.value" :key="item.value" :value="item.value"/>
+      <el-select v-model="chosenVersion" @change="urlChange">
+        <el-option v-for="item in vList" :label="item" :key="item" :value="item"/>
       </el-select>
       </div>
       <div></div>
@@ -148,7 +148,7 @@
           label="操作">
 
           <template slot-scope="scope">
-          <a @click="downFile(scope.row.downloadurl)">下载</a>
+          <a @click="downFile(scope.row.downloadUrl)">下载</a>
           </template>
     
           <!-- <template slot-scope="scope">
@@ -179,6 +179,7 @@ export default {
           list:[], //首页用包名得到的列表
           urllist:[], //jar,pom包的下载地址
           total: 0, //总页数
+          curRow: {}, //当前选中行的所有信息
           currentPage: 1, //当前页数
           pageSize: 10, //每页条数
           searchMap: {}, //搜索Map
@@ -190,17 +191,13 @@ export default {
           uploadJARUrl: '', //后端返回的jar上传url
           uploadPOMUrl: '', //后端返回的pom上传url
           packageName: '', //当前点开行的包名
-          vList: '', //记录某一行的versionList
+          chosenVersion: '', //当前选中的版本号
+          vList: [], //记录某一行的versionList
           uploadForm: {
             groupId: '',
             artifactId: '',
             version: '',
             packaging: '',
-          },
-          getInfoForm: {
-            groupId: '',
-            artifactId: '',
-            version: ''
           },
           uploadRules: {
             groupId: [{ required: true, message: '请输入groupId', trigger: 'blur'}],
@@ -216,10 +213,10 @@ export default {
     },
     methods: {
         fetchData(){
-            mavenApi.search(this.$router.currentRoute.name,this.currentPage,this.pageSize,this.searchMap).then(response =>{
-                this.total = response.data.total
-                this.list = response.data.rows
-                this.urllist = response.data.urls
+            mavenApi.search(this.$router.currentRoute.name,this.currentPage,this.pageSize).then(response =>{
+                //this.total = response.data.total
+                this.list = response.data
+                //this.urllist = response.data.urls
             }).catch(() => {
                 this.total = 0
                 this.list = []
@@ -289,13 +286,14 @@ export default {
           this.dialogVisible = false // 关闭窗口
         },
 
-        handleDel(id){
-            this.$confirm('您确定要删除此记录吗?', '提示', {
+        handleDel(row){
+            this.$confirm('您确定要删除此maven包吗?', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            mavenApi.deleteById(this.$router.currentRoute.name,id).then(response =>{
+            //console.log("delete this group")
+            mavenApi.deleteByGroup(this.$router.currentRoute.name,row.groupId,row.artifactId).then(response =>{
               this.$message({
                 message: response.message,
                 type: (response.flag ? 'success':'error')
@@ -308,9 +306,26 @@ export default {
           });
         },
 
-        // handleDownload(downloadurl){
-        //   let e = axios.post(this.uploadJARUrl, new Buffer(e.target.result, 'binary'))
-        // },
+        handleDelVersion(){
+          this.$confirm('您确定要删除此版本吗?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            //console.log("delete this version")
+            mavenApi.deleteVersion(this.$router.currentRoute.name,this.curRow.groupId,this.curRow.artifactId,this.chosenVersion).then(response =>{
+              this.$message({
+                message: response.message,
+                type: (response.flag ? 'success':'error')
+              });
+              if(response.flag){
+                this.fetchData()
+              }
+            })
+          }).catch(() => {
+          });
+        },
+
         
         downFile (downloadurl) {
           //console.log(downloadurl)
@@ -377,27 +392,30 @@ export default {
           this.detailVisible = true
           this.packageName = row.groupId+":"+row.artifactId
           this.vList = row.versionList
-          this.getInfoForm.version = row.latestversion//this.vList[0].value
-          this.getInfoForm.groupId = row.groupId
-          this.getInfoForm.artifactId = row.artifactId
+          this.vList.reverse()
+          this.curRow = row
+          this.chosenVersion = row.latestVersion//this.vList[0].value
+          mavenApi.getUrl(this.$router.currentRoute.name,row.groupId,row.artifactId,this.chosenVersion).then(response =>{
+            this.urllist = response.data
+          }).catch(() => {
+            this.$message({
+              message: response.message,
+              type: (response.flag ? 'success':'error')
+            })
+          })
         },
 
         //更改版本后获得新的url
         urlChange(){
-          console.log(this.selectedVersion)
-          // mavenApi.getURL(this.$router.currentRoute.name, this.uploadForm, ).then(async(response) => {
-          //         if(response.flag){
-          //           this.uploadJARUrl = response.data.uploadJARUrl
-          //           this.uploadPOMUrl = response.data.uploadPOMUrl
-
-          //           let e = await pFileReader(this.JARfileList[0].raw)
-          //           let res = await axios.put(this.uploadJARUrl, new Buffer(e.target.result, 'binary'))
-          //           console.log(res)
-          //           if(res.status!=200){
-          //             this.saveFlag = false
-          //             this.$message.error('JAR文件上传失败')
-          //             throw new Error('JAR文件上传失败！')
-          //           }
+          //console.log(this.curRow)
+          mavenApi.getUrl(this.$router.currentRoute.name,this.curRow.groupId,this.curRow.artifactId,this.chosenVersion).then(response =>{
+            this.urllist = response.data
+          }).catch(() => {
+            this.$message({
+              message: response.message,
+              type: (response.flag ? 'success':'error')
+            })
+          })
         },
 
 

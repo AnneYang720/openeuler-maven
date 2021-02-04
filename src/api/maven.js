@@ -7,11 +7,10 @@ export default{
         });
     },
 
-    search(repo,page,size,searchMap){
+    search(repo,page,size){
         return request({
             url: `/maven/${repo}/search/${page}/${size}`,//ES6写法
-            method: 'post',
-            data: searchMap
+            method: 'get'
         });
     },
 
@@ -30,10 +29,26 @@ export default{
             data: pojo        })
     },
 
-    deleteById(repo,id){
+    deleteByGroup(repo,groupId,artifactId){
+        //console.log("js delete this group")
         return request({
-            url:`/maven/${repo}/${id}`,
+            url:`/maven/${repo}/${groupId}/${artifactId}`,
             method:'delete'
         })
     },
+
+    deleteVersion(repo,groupId,artifactId,chosenVersion){
+        //console.log("js delete this version")
+        return request({
+            url:`/maven/${repo}/${groupId}/${artifactId}/${chosenVersion}/`,
+            method:'delete'
+        })
+    },
+
+    getUrl(repo,groupId,artifactId,chosenVersion){
+        return request({
+            url: `/maven/${repo}/geturl/${groupId}/${artifactId}/${chosenVersion}/`,
+            method: 'get'
+        })
+    }
 } 
