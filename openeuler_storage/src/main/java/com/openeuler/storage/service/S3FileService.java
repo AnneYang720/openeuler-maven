@@ -7,8 +7,11 @@ import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.HttpMethod;
 import com.openeuler.storage.dao.FileDao;
 import com.openeuler.storage.pojo.FileInfo;
+import com.openeuler.storage.pojo.UrlInfo;
 import com.openeuler.storage.util.FileUtils;
 import com.openeuler.user.pojo.User;
+import entity.Result;
+import entity.StatusCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -139,20 +142,6 @@ public class S3FileService extends S3ClientService {
         fileDao.save(fileInfo);
     }
 
-    public void removeFile(FileInfo fileInfo) {
-        Claims claims = (Claims) request.getAttribute("claims_user");
-        if (claims == null) {//说明当前用户没有user角色
-            throw new RuntimeException("请登陆后再删除文件");
-        }
-        if (!claims.getId().equals(fileInfo.getUserId())) {
-            throw new RuntimeException("不能删除其他用户的文件");
-        }
-        //String fileName = fileInfo.getFilename();
-        String fileName = "";
-        getClient().deleteObject(new DeleteObjectRequest(getBucketName(), fileName));
-        fileDao.delete(fileInfo);
-    }
-
     public void removeFile(String id) {
         Claims claims = (Claims) request.getAttribute("claims_user");
         if (claims == null) {//说明当前用户没有user角色
@@ -207,52 +196,69 @@ public class S3FileService extends S3ClientService {
                 .withCannedAcl(CannedAccessControlList.PublicRead));
     }
 
-//    /**
-//     * 条件查询+分页
-//     *
-//     * @param whereMap
-//     * @param page
-//     * @param size
-//     * @return
-//     */
-//    public Page<FileInfo> findSearch(Map whereMap, String repo, int page, int size) {
-//        //验证是否登录，如果登录就获取当前登录用户的ID
-//        Claims claims = (Claims) request.getAttribute("claims_user");
-//        if (claims == null) {//说明当前用户没有user角色
-//            throw new RuntimeException("请登陆后再上传文件");
-//        }
-//        String userId = claims.getId();
-//        Specification<FileInfo> specification = createSpecification(whereMap,repo,userId);
-//        PageRequest pageRequest = PageRequest.of(page - 1, size);
-//        return FileDao.findAll(specification, pageRequest);
-//    }
 
-    /**
-     * 动态条件构建
-     *
-     * @param searchMap
-     * @return
-     */
-    private Specification<FileInfo> createSpecification(Map searchMap, String repo, String userId) {
+    public List<FileDao.ArtifactVersionList> getVersionList(String repo, int page, int size) {
+        Claims claims = (Claims) request.getAttribute("claims_user");
+        if (claims == null) {//说明当前用户没有user角色
+            throw new RuntimeException("请登陆");
+        }
 
-        return new Specification<FileInfo>() {
-
-            @Override
-            public Predicate toPredicate(Root<FileInfo> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                List<Predicate> predicateList = new ArrayList<Predicate>();
-                // userId
-                if (searchMap.get("userId") != null && !"".equals(searchMap.get("userId"))) {
-                    predicateList.add(cb.like(root.get("id").as(String.class), "%" + (String) searchMap.get("id") + "%"));
-                }
-                // repo
-                if (searchMap.get("repo") != null && !"".equals(searchMap.get("repo"))) {
-                    predicateList.add(cb.like(root.get("id").as(String.class), "%" + (String) searchMap.get("id") + "%"));
-                }
-
-                return cb.and(predicateList.toArray(new Predicate[predicateList.size()]));
-
-            }
-        };
-
+        return this.fileDao.findVersionsGroupByArtifactAndGroupId(claims.getId(), repo, page * size, size);
     }
+
+    public List<UrlInfo> getUrlList(String repo, String groupId, String artifactId, String version) {
+        Claims claims = (Claims) request.getAttribute("claims_user");
+        if (claims == null) {//说明当前用户没有user角色
+            throw new RuntimeException("请登陆");
+        }
+
+        List<FileInfo> curInfo = fileDao.findByUserIdAndRepoAndGroupIdAndArtifactIdAndVersion(claims.getId(), repo, groupId, artifactId, version);
+        if(curInfo.size()!=1){
+            throw new RuntimeException("无法定位文件");
+        }
+        List<UrlInfo> res = new ArrayList<>();
+        String filename = artifactId + "-" + version+".";
+        res.add(new UrlInfo(filename+ curInfo.get(0).getPackaging(), curInfo.get(0).getJarUrl()));
+        res.add(new UrlInfo(filename+"pom", curInfo.get(0).getPomUrl()));
+        return res;
+    }
+
+    public void removeFileGroup(String repo, String groupId, String artifactId){
+        Claims claims = (Claims) request.getAttribute("claims_user");
+        if (claims == null) {//说明当前用户没有user角色
+            throw new RuntimeException("请登陆后再删除文件");
+        }
+
+        List<FileInfo> filesInfo = fileDao.findByUserIdAndRepoAndGroupIdAndArtifactId(claims.getId(), repo, groupId, artifactId);
+        if (filesInfo == null || filesInfo.isEmpty()) {
+            throw new RuntimeException("无法定位文件包");
+        }
+        String baseUrl = repo+"/"+groupId.replace(".","/")+"/"+artifactId+"/";
+        for(FileInfo info : filesInfo){
+            String fileName = baseUrl+info.getVersion()+"/"+artifactId+"-"+info.getVersion()+ ".";
+            getClient().deleteObject(new DeleteObjectRequest(getBucketName(), fileName+"pom"));
+            getClient().deleteObject(new DeleteObjectRequest(getBucketName(), fileName+info.getPackaging()));
+            fileDao.delete(info);
+        }
+    }
+
+    public void removeFile(String repo, String groupId, String artifactId, String version) {
+        Claims claims = (Claims) request.getAttribute("claims_user");
+        if (claims == null) {//说明当前用户没有user角色
+            throw new RuntimeException("请登陆后再删除文件");
+        }
+
+        List<FileInfo> curInfo = fileDao.findByUserIdAndRepoAndGroupIdAndArtifactIdAndVersion(claims.getId(), repo, groupId, artifactId, version);
+        if(curInfo.size()!=1){
+            throw new RuntimeException("无法定位文件");
+        }
+
+        String fileName = artifactId+ "-" +version+ ".";
+        String url = repo+"/"+groupId.replace(".","/")+"/"+artifactId+"/"+version+"/"+fileName;
+
+        getClient().deleteObject(new DeleteObjectRequest(getBucketName(), url+"pom"));
+        getClient().deleteObject(new DeleteObjectRequest(getBucketName(), url+curInfo.get(0).getPackaging()));
+        fileDao.delete(curInfo.get(0));
+    }
+
 }

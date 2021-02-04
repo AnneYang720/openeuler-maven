@@ -33,6 +33,9 @@ public class FileInfo implements Serializable {
     private String packaging;
     private java.util.Date updateDate;
 
+    public FileInfo() {
+    }
+
     public String getId() {
         return id;
     }
