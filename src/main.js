@@ -6,6 +6,9 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import locale from 'element-ui/lib/locale/lang/zh-CN'
 
+import Gravatar from 'vue-gravatar';
+Vue.component('v-gravatar', Gravatar);
+
 import '@/styles/index.scss' // global css
 
 import App from './App'
