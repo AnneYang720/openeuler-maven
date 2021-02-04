@@ -21,12 +21,18 @@
       <el-table-column
         prop="groupId"
         label="GroupId"
-        width="150">
+        width="160">
+        <template scope="scope">
+          <span style="color: DodgerBlue">{{ scope.row.groupId }}</span>
+        </template>
       </el-table-column>
       <el-table-column
         prop="artifactId"
         label="ArtifactId"
-        width="150">
+        width="160">
+        <template scope="scope">
+          <span style="color: DodgerBlue">{{ scope.row.artifactId }}</span>
+        </template>
       </el-table-column>
       <el-table-column
         prop="latestVersion"
