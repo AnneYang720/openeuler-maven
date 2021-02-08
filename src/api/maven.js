@@ -1,16 +1,17 @@
 import request from '@/utils/request'
 export default{
-    getList(repo){
+    getList(repo,page,size){
         return request({
-            url:`/maven/${repo}`,
-            method:'get'
+            url: `/maven/${repo}/getlist/${page}/${size}`,//ES6写法
+            method: 'get'
         });
     },
 
-    search(repo,page,size){
+    search(repo,page,size,keywords){
         return request({
             url: `/maven/${repo}/search/${page}/${size}`,//ES6写法
-            method: 'get'
+            method: 'post',
+            data: keywords
         });
     },
 

@@ -3,9 +3,9 @@
     <br>
     <el-form :inline="true" >
       <el-form-item label="包名称">
-        <el-input v-model="searchMap.name"></el-input>
+        <el-input v-model="keywords"></el-input>
       </el-form-item>
-      <el-button @click="fetchData()" type="primary" plain>搜索</el-button>
+      <el-button @click="handleSearch()" type="primary" plain>搜索</el-button>
       <el-button @click="dialogVisible = true" type="primary" plain>新增</el-button>
     </el-form>
 
@@ -188,7 +188,7 @@ export default {
           curRow: {}, //当前选中行的所有信息
           currentPage: 1, //当前页数
           pageSize: 10, //每页条数
-          searchMap: {}, //搜索Map
+          keywords: '', //搜索关键词
           dialogVisible: false, //新建包的弹出框
           detailVisible: false, //点开某行展示具体内容的弹出框
           saveFlag:true, //两个文件通过url直接上传是否成功
@@ -219,7 +219,7 @@ export default {
     },
     methods: {
         fetchData(){
-            mavenApi.search(this.$router.currentRoute.name,this.currentPage,this.pageSize).then(response =>{
+            mavenApi.getList(this.$router.currentRoute.name,this.currentPage,this.pageSize).then(response =>{
                 //this.total = response.data.total
                 this.list = response.data
                 //this.urllist = response.data.urls
@@ -228,12 +228,18 @@ export default {
                 this.list = []
           });
         },
-        // fetchData(){
-        //     mavenApi.getList(this.$router.currentRoute.name).then(response =>{
-        //         this.list = response.data
-        //     })
-        // },
 
+        handleSearch(){
+          if (this.keywords!=='') {
+            mavenApi.search(this.$router.currentRoute.name, this.currentPage, this.pageSize, this.keywords).then(response =>{
+                this.list = response.data
+            }).catch(() => {
+                this.total = 0
+                this.list = []
+            });
+          }
+        },
+        
         handleUpload(){
           if(this.beforeUploadJAR() && this.beforeUploadPOM()){
             this.$refs.uploadForm.validate(valid => {
