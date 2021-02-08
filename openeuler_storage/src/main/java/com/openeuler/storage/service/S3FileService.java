@@ -139,6 +139,8 @@ public class S3FileService extends S3ClientService {
         String objectKeyPOM = repo+"/"+fileInfo.getGroupId().replace(".", "/") + "/" + fileInfo.getArtifactId() + "/" + fileInfo.getVersion() + "/" + filename;
         fileInfo.setJarUrl(getUrl().concat(objectKeyPOM+fileInfo.getPackaging()));
         fileInfo.setPomUrl(getUrl().concat(objectKeyPOM+"pom"));
+
+//        fileSearchDao.save(fileInfo);
         fileDao.save(fileInfo);
     }
 
@@ -204,6 +206,16 @@ public class S3FileService extends S3ClientService {
         }
 
         return this.fileDao.findVersionsGroupByArtifactAndGroupId(claims.getId(), repo, page * size, size);
+    }
+
+    public List<FileDao.ArtifactVersionList> searchList(String repo, int page, int size, String keywords) {
+        Claims claims = (Claims) request.getAttribute("claims_user");
+        if (claims == null) {//说明当前用户没有user角色
+            throw new RuntimeException("请登陆");
+        }
+        keywords = "%"+keywords+"%";
+        return this.fileDao.searchVersionsGroupByArtifactAndGroupId(claims.getId(), repo, keywords,page * size, size);
+        //return this.fileDao.searchVersionsGroupByArtifactAndGroupId("1353720995084636160", repo, keywords,page * size, size);
     }
 
     public List<UrlInfo> getUrlList(String repo, String groupId, String artifactId, String version) {

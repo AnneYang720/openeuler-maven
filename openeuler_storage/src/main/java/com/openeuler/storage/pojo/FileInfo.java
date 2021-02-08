@@ -1,6 +1,8 @@
 package com.openeuler.storage.pojo;
 
 import com.openeuler.user.pojo.User;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.Entity;
@@ -13,6 +15,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "tb_fileinfo")
+//@Document(indexName = "openeuler", type = "fileInfo")
 @IdClass(FileInfo.class)//指定联合主键
 public class FileInfo implements Serializable {
 
@@ -27,9 +30,13 @@ public class FileInfo implements Serializable {
     private String pomUrl;
 
     private String repo;
+
+//    @Field
     private String groupId;
+//    @Field
     private String artifactId;
     private String version;
+
     private String packaging;
     private java.util.Date updateDate;
 

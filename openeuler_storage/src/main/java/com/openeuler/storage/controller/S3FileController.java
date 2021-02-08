@@ -45,9 +45,23 @@ public class S3FileController {
      * @param page
      * @param size
      */
-    @GetMapping("/{repo}/search/{page}/{size}")
+    @GetMapping("/{repo}/getlist/{page}/{size}")
     public Result getListPage(@PathVariable String repo, @PathVariable int page, @PathVariable int size) {
         List<FileDao.ArtifactVersionList> data = s3FileService.getVersionList(repo, page, size);
+        return new Result(true, StatusCode.OK, "列举成功", data);
+    }
+
+    /**
+     * 根据关键词搜索
+     * 带分页，从第 page 页开始的 size 个
+     *
+     * @param repo
+     * @param page
+     * @param size
+     */
+    @PostMapping("/{repo}/search/{page}/{size}")
+    public Result searchList(@PathVariable String repo, @PathVariable int page, @PathVariable int size, @RequestBody String keywords) {
+        List<FileDao.ArtifactVersionList> data = s3FileService.searchList(repo, page, size, keywords);
         return new Result(true, StatusCode.OK, "列举成功", data);
     }
 
@@ -103,66 +117,4 @@ public class S3FileController {
         return new Result(true, StatusCode.OK, "文件删除成功");
     }
 
-
-
-//    /**
-//     * 增加
-//     *
-//     * @param file
-//     * @param pomFile
-//     * @param fileInfo
-//     */
-//    @PostMapping("/uploadboth")
-//    public Result add(@RequestParam MultipartFile file, @RequestParam MultipartFile pomFile,
-//                      @RequestParam FileInfo fileInfo) {
-//
-//        String fileUrl = s3FileService.uploadFileToAmazon(file, fileInfo);
-//        fileInfo.setPackaging("pom");
-//        String pomFileUrl = s3FileService.uploadFileToAmazon(pomFile, fileInfo);
-//        return new Result(true, StatusCode.OK, "文件上传成功", fileUrl);
-//    }
-
-//    /**
-//     * 增加
-//     * @param file
-//     * @param fileInfo
-//     */
-//    @PostMapping("/upload")
-//    public Result add(@RequestParam MultipartFile file,
-//                      @RequestParam FileInfo fileInfo) {
-//        String fileUrl = s3FileService.uploadFileToAmazon(file, fileInfo);
-//        return new Result(true, StatusCode.OK, "文件上传成功", fileUrl);
-//    }
-
-//    /**
-//     * 通过URL直接上传
-//     *
-//     * @param fileInfo
-//     */
-//    @PostMapping("/directupload")
-//    public Result directAdd(@RequestBody FileInfo fileInfo) {
-//        String uploadUrl = s3FileService.createUploadUrl(fileInfo);
-//        return new Result(true, StatusCode.OK, "预签名url创建成功", uploadUrl);
-//    }
-
-//    /**
-//     * 删除
-//     *
-//     * @param id
-//     */
-//    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-//    public Result delete(@PathVariable String id) {
-//        s3FileService.removeFile(id);
-//        return new Result(true, StatusCode.OK, "文件删除成功");
-//    }
-
-//    /**
-//     * 删除
-//     * @param fileInfo
-//     */
-//    @PostMapping (value="/delete")
-//    public Result delete(@RequestBody FileInfo fileInfo){
-//        s3FileService.removeFile(fileInfo);
-//        return new Result(true, StatusCode.OK, "文件删除成功");
-//    }
 }
