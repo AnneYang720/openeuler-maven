@@ -17,12 +17,12 @@
           placeholder="password"></el-input>
           <span class="show-pwd" @click="showPwd"><svg-icon icon-class="eye" /></span>
       </el-form-item>
-      <el-form-item>
-        <el-button type="primary" style="width:40%;" :loading="loading" @click.native.prevent="handleLogin">
+      <el-form-item class=el-form-item-button>
+        <el-button type="primary" style="width:45%;" :loading="loading" @click.native.prevent="handleLogin">
           登录
         </el-button>
         <router-link to="/register"> 
-          <el-button type="primary" style="width:40%;">
+          <el-button type="primary" style="width:45%;margin-left:20px;">
             注册
           </el-button>
         </router-link>
@@ -156,6 +156,13 @@ export default {
       background: rgba(0, 0, 0, 0.1);
       border-radius: 5px;
       color: #454545;
+    }
+    .el-form-item-button {
+      text-align: center;
+      border: 0px;
+      background: rgba(45, 58, 75, 1);
+      border-radius: 0px;
+      color: #2d3a4b;
     }
     .show-pwd {
       position: absolute;

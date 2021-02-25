@@ -25,7 +25,8 @@
       :visible.sync="dialogVisible"
       width="30%"
       >
-      <el-form label-width="80px">
+
+      <el-form label-width="20%" style="width:95%">
         <el-form-item label="用户名">
           <el-input v-model="pojo.loginName" :placeholder="loginName"></el-input>
         </el-form-item>
@@ -41,6 +42,8 @@
         <el-button @click="dialogVisible = false">关 闭</el-button>
       </span>
     </el-dialog>
+
+
   </el-menu>
   
 </template>

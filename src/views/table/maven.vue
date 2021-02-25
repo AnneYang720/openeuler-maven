@@ -1,12 +1,12 @@
 <template>
   <div>
     <br>
-    <el-form :inline="true" >
+    <el-form :inline="true" align="right">
       <el-form-item label="包名称">
         <el-input v-model="keywords"></el-input>
       </el-form-item>
       <el-button @click="handleSearch()" type="primary" plain>搜索</el-button>
-      <el-button @click="dialogVisible = true" type="primary" plain>新增</el-button>
+      <el-button @click="dialogVisible = true" type="primary" style="margin-right:5%" plain>新增</el-button>
     </el-form>
 
     <el-table
@@ -14,10 +14,9 @@
       :row-style="{height:0+'px'}"
       :header-cell-style="{'text-align':'center'}"
       :cell-style="{padding:0+'px','text-align':'center'}"
-      align="center"
       border
       @row-click="rowClick"
-      style="width: 90%">
+      style="width:90%;margin-left:5%">
       <el-table-column
         prop="groupId"
         label="GroupId"
@@ -57,6 +56,7 @@
         </template>
       </el-table-column>
     </el-table>
+    
     <el-pagination
       @size-change="fetchData"
       @current-change="fetchData"
@@ -64,7 +64,9 @@
       :page-sizes="[5, 10, 20]"
       :page-size="pageSize"
       layout="total, sizes, prev, pager, next, jumper"
-      :total="total">
+      :total="total"
+      align="center"
+      style="margin-top:3%">
     </el-pagination>
 
     <!-- 弹出窗口 -->
@@ -73,7 +75,7 @@
       :visible.sync="dialogVisible"
       width="40%"
       >
-      <el-form :model="uploadForm" :rules="uploadRules" ref="uploadForm" label-width="80px">
+      <el-form :model="uploadForm" :rules="uploadRules" ref="uploadForm" label-width="100px" style="width:95%">
         <el-form-item label="GroupID" prop="groupId">
           <el-input v-model="uploadForm.groupId" placeholder="请输入"></el-input>
         </el-form-item>
@@ -113,7 +115,7 @@
           </el-upload>
         </el-form-item>
       </el-form>
-      <span slot="footer" class="dialog-footer">
+      <span slot="footer" class="dialog-footer" style="margin-right:10%">
         <el-button @click="dialogVisible = false">关 闭</el-button>
         <el-button type="primary" @click="handleUpload()">上 传</el-button>
       </span>
@@ -121,30 +123,28 @@
 
     <!-- 弹出窗口 -->
     <el-dialog
-      :title="packageName" 
+      :title="packageName"
       :visible.sync="detailVisible"
-      width="40%"
+      width="45%"
       >
+
       <div>
-      <div> 推送人 {{loginName}} </div>
-      <div></div>
-      <div> 推送时间 {{uploadDate}} </div>
-      <div></div>
-      <div> 版本
-      <el-select v-model="chosenVersion" @change="urlChange">
+      <div style="line-height:40px;margin-left:5%"> <span>推送人</span><span style="color:black;margin-left:40px">{{loginName}}</span> </div>
+      <div style="line-height:40px;margin-left:5%"> <span>推送时间</span><span style="color:black;margin-left:27px">{{uploadDate}}</span> </div>
+      
+      <div style="line-height:40px;margin-left:5%"> 版本
+      <el-select v-model="chosenVersion" @change="urlChange" style="margin-left:50px">
         <el-option v-for="item in vList" :label="item" :key="item" :value="item"/>
       </el-select>
       </div>
-      <div></div>
 
       <el-table
         :data="urllist"
         :row-style="{height:0+'px'}"
         :header-cell-style="{'text-align':'center'}"
-        :cell-style="{padding:0+'px','text-align':'center'}"
-        align="center"
+        :cell-style="{padding:5+'px','text-align':'center'}"
         border
-        style="width: 90%">
+        style="width: 90%;margin-top:30px;margin-left:5%">
         <el-table-column
           prop="filename"
           label="文件名">
@@ -154,7 +154,7 @@
           label="操作">
 
           <template slot-scope="scope">
-          <a @click="downFile(scope.row.downloadUrl)">下载</a>
+          <a @click="downFile(scope.row.downloadUrl)"  type="text/html">下载</a>
           </template>
     
           <!-- <template slot-scope="scope">
@@ -164,7 +164,7 @@
       </el-table>
 
 
-      <el-button @click="handleDelVersion()" type="text" size="small">删除此版本</el-button>
+      <el-button @click="handleDelVersion()" type="primary" style="margin-top:20px;margin-left:75%" size="small">删除此版本</el-button>
 
     </div>
     </el-dialog>
@@ -441,3 +441,18 @@ export default {
 }
       
 </script>
+
+<style rel="stylesheet/scss" lang="scss">
+.el-dialog {
+  // // transform: translateY(-50%);
+  // //border-radius: 10px;
+  // // width: 500px;
+  // // height: 500px!important;
+  .el-dialog__header{  
+    background: #f7f7f7;
+    text-align: left;   
+    font-weight: 600;
+  }
+}
+
+</style>
