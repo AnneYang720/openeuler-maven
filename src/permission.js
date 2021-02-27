@@ -12,7 +12,7 @@ router.beforeEach((to, from, next) => {
     if (to.path === '/login') {
       next({ path: '/' })
     } else {
-      if (typeof(store.getters.roles) == "undefined" || store.getters.roles.length === 0) {
+      if (store.getters.loginName === '') {
         store.dispatch('GetInfo').then(res => { // 拉取用户信息
           next()
         }).catch(() => {

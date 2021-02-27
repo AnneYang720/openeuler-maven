@@ -6,8 +6,8 @@ const user = {
     token: getToken(),
     loginName: '',
     avatar: '',
-    roles: [],
-    email:''
+    email:'',
+    userId:'',
   },
 
   mutations: {
@@ -20,11 +20,11 @@ const user = {
     SET_AVATAR: (state, avatar) => {
       state.avatar = avatar
     },
-    SET_ROLES: (state, roles) => {
-      state.roles = roles
-    },
     SET_EMAIL: (state, email) => {
       state.email = email
+    },
+    SET_USERID: (state, userId) => {
+      state.userId = userId
     }
   },
 
@@ -37,7 +37,6 @@ const user = {
           const data = response.data
           setToken(data.token)
           commit('SET_TOKEN', data.token)
-          commit('SET_ROLES', data.roles)
           resolve()
         }).catch(error => {
           reject(error)
@@ -54,6 +53,7 @@ const user = {
           //commit('SET_AVATAR', data.avatar)
           commit('SET_AVATAR',"https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif")
           commit('SET_EMAIL', data.email)
+          commit('SET_USERID', data.userId)
           resolve(response)
         }).catch(error => {
           reject(error)

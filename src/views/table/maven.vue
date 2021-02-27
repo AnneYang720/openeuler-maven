@@ -21,7 +21,7 @@
         prop="groupId"
         label="GroupId"
         width="160">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span style="color: DodgerBlue">{{ scope.row.groupId }}</span>
         </template>
       </el-table-column>
@@ -29,7 +29,7 @@
         prop="artifactId"
         label="ArtifactId"
         width="160">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span style="color: DodgerBlue">{{ scope.row.artifactId }}</span>
         </template>
       </el-table-column>
@@ -129,8 +129,8 @@
       >
 
       <div>
-      <div style="line-height:40px;margin-left:5%"> <span>推送人</span><span style="color:black;margin-left:40px">{{loginName}}</span> </div>
-      <div style="line-height:40px;margin-left:5%"> <span>推送时间</span><span style="color:black;margin-left:27px">{{uploadDate}}</span> </div>
+      <div style="line-height:40px;margin-left:5%"> <span>上传用户</span><span style="color:black;margin-left:27px">{{loginName}}</span> </div>
+      <div style="line-height:40px;margin-left:5%"> <span>上传时间</span><span style="color:black;margin-left:27px">{{uploadDate}}</span> </div>
       
       <div style="line-height:40px;margin-left:5%"> 版本
       <el-select v-model="chosenVersion" @change="urlChange" style="margin-left:50px">
@@ -174,17 +174,17 @@
 <script>
 
 import mavenApi from '@/api/maven'
+import { mapGetters } from 'vuex'
 import axios from 'axios'
 import {pFileReader} from '@/utils/filereader'
 
 export default {
     data(){
         return {
-          loginName: 'aaa', //当前用户昵称
-          uploadDate: 'bbb', //当前文件的上传时间
+          uploadDate: '', //当前文件的上传时间
           list:[], //首页用包名得到的列表
           urllist:[], //jar,pom包的下载地址
-          total: 0, //总页数
+          total: 0, //总条数
           curRow: {}, //当前选中行的所有信息
           currentPage: 1, //当前页数
           pageSize: 10, //每页条数
@@ -407,6 +407,8 @@ export default {
           this.vList.reverse()
           this.curRow = row
           this.chosenVersion = row.latestVersion//this.vList[0].value
+          let dt = new Date(row.updateTime)
+          this.uploadDate = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate() + ' ' + dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds()
           mavenApi.getUrl(this.$router.currentRoute.name,row.groupId,row.artifactId,this.chosenVersion).then(response =>{
             this.urllist = response.data
           }).catch(() => {
@@ -422,6 +424,8 @@ export default {
           //console.log(this.curRow)
           mavenApi.getUrl(this.$router.currentRoute.name,this.curRow.groupId,this.curRow.artifactId,this.chosenVersion).then(response =>{
             this.urllist = response.data
+            let dt = new Date(this.urllist[0].updateTime)
+            this.uploadDate = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate() + ' ' + dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds()
           }).catch(() => {
             this.$message({
               message: response.message,
@@ -437,7 +441,12 @@ export default {
     },
     watch: {
       '$route': 'fetchData'
-    }
+    },
+    computed: {
+    ...mapGetters([
+      'loginName'
+    ])
+  }
 }
       
 </script>
