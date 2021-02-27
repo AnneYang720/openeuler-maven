@@ -199,7 +199,7 @@ public class S3FileService extends S3ClientService {
     }
 
 
-    public List<FileDao.ArtifactVersionList> getVersionList(String repo, int page, int size) {
+    public List<FileDao.ArtifactVersionList> getList(String repo, int page, int size) {
         Claims claims = (Claims) request.getAttribute("claims_user");
         if (claims == null) {//说明当前用户没有user角色
             throw new RuntimeException("请登陆");
@@ -230,8 +230,8 @@ public class S3FileService extends S3ClientService {
         }
         List<UrlInfo> res = new ArrayList<>();
         String filename = artifactId + "-" + version+".";
-        res.add(new UrlInfo(filename+ curInfo.get(0).getPackaging(), curInfo.get(0).getJarUrl()));
-        res.add(new UrlInfo(filename+"pom", curInfo.get(0).getPomUrl()));
+        res.add(new UrlInfo(filename+ curInfo.get(0).getPackaging(), curInfo.get(0).getJarUrl(), curInfo.get(0).getUpdateDate()));
+        res.add(new UrlInfo(filename+"pom", curInfo.get(0).getPomUrl(), curInfo.get(0).getUpdateDate()));
         return res;
     }
 

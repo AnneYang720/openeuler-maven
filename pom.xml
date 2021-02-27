@@ -13,6 +13,7 @@
         <module>openeuler_user</module>
         <module>openeuler_storage</module>
         <module>openeuler_eureka</module>
+        <module>openeuler_share</module>
     </modules>
     <packaging>pom</packaging>
 

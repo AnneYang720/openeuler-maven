@@ -11,6 +11,7 @@
         <module name="openeuler_common" />
         <module name="openeuler_user" />
         <module name="openeuler_storage" />
+        <module name="openeuler_share" />
         <module name="openeuler_base" />
       </profile>
     </annotationProcessing>
@@ -20,6 +21,7 @@
       <module name="openeuler_base" options="-parameters" />
       <module name="openeuler_common" options="-parameters" />
       <module name="openeuler_eureka" options="-parameters" />
+      <module name="openeuler_share" options="-parameters" />
       <module name="openeuler_storage" options="-parameters" />
       <module name="openeuler_user" options="-parameters" />
     </option>

@@ -52,7 +52,7 @@ public interface FileDao extends JpaRepository<FileInfo, String>, JpaSpecificati
     @Query(value = "SELECT group_concat(version) AS versionList, count(version) as versionNum, " +
             "group_concat(id) AS idList, max(update_date) AS updateTime, " +
             "user_id AS userId, repo, group_id AS groupId, artifact_id AS artifactId, " +
-            "substring_index(group_concat(version), ',', -1) AS latestVersion " +
+            "substring_index(group_concat(version), ',', -1) AS latestVersion" +
             "FROM tb_fileinfo WHERE user_id = :userId AND repo = :repo " +
             "AND group_id LIKE :keywords OR artifact_id LIKE :keywords " +
             "GROUP BY group_id, artifact_id, user_id, repo " +
@@ -74,5 +74,6 @@ public interface FileDao extends JpaRepository<FileInfo, String>, JpaSpecificati
         @Value("#{target.idList.split(\",\")}")
         List<String> getIdList();
     }
+
 
 }

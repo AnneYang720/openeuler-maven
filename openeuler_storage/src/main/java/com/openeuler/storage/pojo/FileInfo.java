@@ -1,10 +1,5 @@
 package com.openeuler.storage.pojo;
 
-import com.openeuler.user.pojo.User;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.web.multipart.MultipartFile;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;

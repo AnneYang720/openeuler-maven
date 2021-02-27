@@ -47,7 +47,7 @@ public class S3FileController {
      */
     @GetMapping("/{repo}/getlist/{page}/{size}")
     public Result getListPage(@PathVariable String repo, @PathVariable int page, @PathVariable int size) {
-        List<FileDao.ArtifactVersionList> data = s3FileService.getVersionList(repo, page, size);
+        List<FileDao.ArtifactVersionList> data = s3FileService.getList(repo, page, size);
         return new Result(true, StatusCode.OK, "列举成功", data);
     }
 
@@ -116,5 +116,7 @@ public class S3FileController {
         s3FileService.removeFile(repo,groupId,artifactId,chosenVersion);
         return new Result(true, StatusCode.OK, "文件删除成功");
     }
+
+
 
 }
