@@ -1,5 +1,8 @@
 <template>
-  <div class="dashboard-container">
+<div class="dashboard-container">
+<el-row :gutter="20" type="flex" >
+  <el-col :span="20">
+
     <span style="color:blue;font-size:20px;font-weight:bold;margin-left:5%"> 我分享的 </span>
     <el-button @click="dialogVisible = true" type="primary" style="margin-left:5%" plain>增加用户</el-button>
     <el-table
@@ -10,11 +13,7 @@
       border
       style="width:90%;margin-left:5%;margin-top:3%">
       <el-table-column
-        prop="userId"
-        label="用户ID">
-      </el-table-column>
-      <el-table-column
-        prop="userName"
+        prop="loginName"
         label="用户名">
       </el-table-column>
       <el-table-column
@@ -43,6 +42,8 @@
       style="margin-top:3%;margin-bottom:5%">
     </el-pagination>
 
+    </el-col>
+    <el-col :span="20">
     <span style="color:blue;font-size:20px;font-weight:bold;margin-left:5%"> 分享给我的 </span>
     <el-table
       :data="shareduserlist"
@@ -50,13 +51,9 @@
       :header-cell-style="{'text-align':'center'}"
       :cell-style="{padding:0+'px','text-align':'center'}"
       border
-      style="width:90%;margin-left:5%;margin-top:3%">
+      style="width:90%;margin-left:5%;margin-top:6%">
       <el-table-column
-        prop="userId"
-        label="用户ID">
-      </el-table-column>
-      <el-table-column
-        prop="userName"
+        prop="loginName"
         label="用户名">
       </el-table-column>
       <el-table-column
@@ -87,7 +84,7 @@
     <!-- <div class="dashboard-text">name:{{loginName}}</div>
     <div class="dashboard-text">email:{{email}}</div>
     <div class="dashboard-text">roles:<span v-for='role in roles' :key='role'>{{role}}</span></div> -->
-
+    </el-col>
     <!-- 弹出窗口 -->
     <el-dialog
       title="增加用户" 
@@ -95,8 +92,8 @@
       width="40%"
       >
       <el-form :model="addUserForm" :rules="addUserRules" ref="addUserForm" label-width="100px" style="width:90%">
-        <el-form-item label="用户邮箱" prop="userEmail">
-          <el-input v-model="addUserForm.userEmail" placeholder="请输入"></el-input>
+        <el-form-item label="用户名" prop="loginName">
+          <el-input v-model="addUserForm.loginName" placeholder="请输入"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer" style="margin-right:10%">
@@ -105,6 +102,8 @@
       </span>
     </el-dialog>  
   
+
+</el-row>
   </div>
 </template>
 
@@ -123,13 +122,6 @@ export default {
     ])
   },
   data(){
-        const validateEmail = (rule, value, callback) => {
-          if (!isvalidEmail(value)) {
-            callback(new Error('请输入正确的邮箱'))
-          } else {
-            callback()
-          }
-        }
         return {
           shareuserlist:[], //主动分享的用户信息
           shareduserlist:[], //被分享的用户信息
@@ -141,10 +133,10 @@ export default {
           pageSize2: 5, //每页条数
           dialogVisible: false, //增加被分享用户的弹出框
           addUserForm: {
-            userEmail: ''
+            loginName: ''
           },
           addUserRules: {
-            userEmail: [{ required: true, message: '请输入待分享用户的邮箱', trigger: 'blur',validator: validateEmail}]
+            loginName: [{ required: true, message: '请输入待分享用户的昵称', trigger: 'blur'}]
           },
           
       }
@@ -167,9 +159,7 @@ export default {
         },
 
         addShare(){
-          this.$refs.addUserForm.validate(valid => {
-            if(valid){
-              shareApi.addShareUser(this.addUserForm).then(response =>{
+          shareApi.addShareUser(this.addUserForm).then(response =>{
                 this.$message({
                   message: response.message,
                   type: (response.flag ? 'success':'error')
@@ -178,8 +168,6 @@ export default {
                     this.fetchData()
                   }
               })
-            }
-          })
         },
 
         deleteShareUser(row){
