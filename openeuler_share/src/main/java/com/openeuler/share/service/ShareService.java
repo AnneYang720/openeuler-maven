@@ -1,8 +1,12 @@
 package com.openeuler.share.service;
 
-import com.openeuler.storage.dao.FileDao;
+import com.openeuler.share.dao.ShareDao;
+import com.openeuler.share.pojo.ShareInfo;
+import com.openeuler.user.pojo.User;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import util.IdWorker;
 
@@ -12,7 +16,7 @@ import java.util.List;
 @Service
 public class ShareService {
     @Autowired
-    private FileDao fileDao;
+    private ShareDao shareDao;
 
     @Autowired
     private IdWorker idWorker;
@@ -20,12 +24,62 @@ public class ShareService {
     @Autowired
     private HttpServletRequest request;
 
-    public List<FileDao.ShareArtifactVersionList> getShareList(int page, int size) {
+
+    /**
+     * 新增分享用户
+     *
+     * @param user
+     */
+    public void addShareUser(User user) {
+        String token = (String) request.getAttribute("claims_user");
+        if (token == null || "".equals(token)) {
+            throw new RuntimeException("非个人用户，不能添加");
+        }
+        String userId = (String) request.getAttribute("user_id");
+        ShareInfo shareinfo = new ShareInfo();
+        shareinfo.setId(idWorker.nextId() + "");
+        shareinfo.setUserId(userId);
+        shareinfo.setSharedUserId(user.getId());
+        shareDao.save(shareinfo);
+    }
+
+    public void deleteShare(String userId) {
+        Claims claims = (Claims) request.getAttribute("claims_user");
+        if (claims == null) {//说明当前用户没有user角色
+            throw new RuntimeException("请登陆后再删除用户");
+        }
+
+        List<ShareInfo> curInfo = shareDao.findByUserIdAndSharedUserId(claims.getId(), userId);
+        if(curInfo.size()!=1){ throw new RuntimeException("无法定位用户"); }
+        shareDao.delete(curInfo.get(0));
+    }
+
+    public void quitShare(String userId) {
+        Claims claims = (Claims) request.getAttribute("claims_user");
+        if (claims == null) {//说明当前用户没有user角色
+            throw new RuntimeException("请登陆后再退出");
+        }
+
+        List<ShareInfo> curInfo = shareDao.findByUserIdAndSharedUserId(userId, claims.getId());
+        if(curInfo.size()!=1){ throw new RuntimeException("无法定位用户"); }
+        shareDao.delete(curInfo.get(0));
+    }
+
+    public List<ShareInfo> getShareUsers(int page, int size) {
         Claims claims = (Claims) request.getAttribute("claims_user");
         if (claims == null) {//说明当前用户没有user角色
             throw new RuntimeException("请登陆");
         }
+        Pageable pageable = PageRequest.of(page-1, size);
+        return shareDao.findByUserId(claims.getId(), pageable);
+    }
 
-        return this.fileDao.findShareVersionsGroupByArtifactAndGroupId(claims.getId(), page * size, size);
+    public List<ShareInfo> getSharedUsers(int page, int size) {
+        Claims claims = (Claims) request.getAttribute("claims_user");
+        if (claims == null) {//说明当前用户没有user角色
+            throw new RuntimeException("请登陆");
+        }
+        Pageable pageable = PageRequest.of(page-1, size);
+        return shareDao.findBySharedUserId(claims.getId(), pageable);
     }
 }

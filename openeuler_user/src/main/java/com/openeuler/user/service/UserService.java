@@ -76,7 +76,7 @@ public class UserService {
      * 获得当前用户信息
      *
      */
-    public User getInfo() {
+    public User getCurInfo() {
         String token = (String) request.getAttribute("claims_user");
         System.out.println("token = " + token);
         if (token == null || "".equals(token)) {
@@ -124,6 +124,16 @@ public class UserService {
      */
     public User findById(String id) {
         return userDao.findById(id).get();
+    }
+
+    /**
+     * 根据LoginName查询实体
+     *
+     * @param loginName
+     * @return
+     */
+    public User findByLoginName(String loginName) {
+        return userDao.findByLoginName(loginName);
     }
 
     /**

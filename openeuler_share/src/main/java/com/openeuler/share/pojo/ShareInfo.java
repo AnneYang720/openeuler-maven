@@ -4,13 +4,14 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "tb_shareinfo")
-public class ShareInfo {
+public class ShareInfo implements Serializable {
     @Id
     private String id;
-    @Id
+
     private String userId;
 
     private String sharedUserId;

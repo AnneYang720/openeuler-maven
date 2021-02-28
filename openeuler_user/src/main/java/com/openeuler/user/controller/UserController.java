@@ -46,7 +46,6 @@ public class UserController {
         String token = jwtUtil.createJWT(user.getId(), user.getEmail(), "user");
         Map<String, Object> map = new HashMap<>();
         map.put("token", token);
-        map.put("roles", Arrays.asList("user"));
         return new Result(true, StatusCode.OK, "登录成功", map);
     }
 
@@ -73,8 +72,8 @@ public class UserController {
      * @return
      */
     @RequestMapping(value = "/info", method = RequestMethod.GET)
-    public Result getInfo() {
-        return new Result(true, StatusCode.OK, "查询成功", userService.getInfo());
+    public Result getCurInfo() {
+        return new Result(true, StatusCode.OK, "查询成功", userService.getCurInfo());
     }
 
     /**
@@ -112,12 +111,34 @@ public class UserController {
     /**
      * 根据ID查询
      *
-     * @param id ID
+     * @param id
      * @return
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public Result findById(@PathVariable String id) {
         return new Result(true, StatusCode.OK, "查询成功", userService.findById(id));
+    }
+
+    /**
+     * 根据ID查询返回用户
+     *
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/find/byid", method = RequestMethod.GET)
+    public User findUserById(@RequestBody String id) {
+        return userService.findById(id);
+    }
+
+    /**
+     * 根据UserName查询
+     *
+     * @param user
+     * @return
+     */
+    @RequestMapping(value = "/loinname", method = RequestMethod.GET)
+    public User findByLoginName(@RequestBody User user) {
+        return userService.findByLoginName(user.getLoginName());
     }
 
 //    /**

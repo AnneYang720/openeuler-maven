@@ -61,7 +61,7 @@ public class S3ClientService {
         // Init your AmazonS3 credentials using BasicAWSCredentials.
         BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 
-        // Start the client using AmazonS3ClientBuilder
+        // Start the com.openeuler.share.client using AmazonS3ClientBuilder
         this.amazonS3 = AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withEndpointConfiguration(
