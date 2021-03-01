@@ -1,5 +1,5 @@
 <template>
-  <div class="login-container">
+  <div class="regis-container">
     <el-form :model="registerForm" :rules="registerRules" ref="registerForm" label-position="left" label-width="0px"
       class="card-box login-form">
       <h3 class="title">Maven私库用户注册</h3>
@@ -102,7 +102,7 @@ export default {
   $dark_gray:#889aa4;
   $light_gray:#eee;
 
-  .login-container {
+  .regis-container {
     position: fixed;
     height: 100%;
     width:100%;
