@@ -55,14 +55,15 @@ public class ShareController {
      * @param page
      * @param size
      */
-    @GetMapping("/userlist/{page}/{size}")
+    @RequestMapping(value="/userlist/{page}/{size}", method = RequestMethod.GET)
     public Result getShareUsers(@PathVariable int page, @PathVariable int size) {
-//        List<ShareInfo> usersId = shareService.getShareUsers(page, size);
+        List<ShareInfo> usersId = shareService.getShareUsers(page, size);
         List<ShareUserInfo> data = new ArrayList<>();
-//        for(ShareInfo info : usersId){
-//            User tmpUser = userClient.findUserById(info.getSharedUserId());
-//            data.add(new ShareUserInfo(tmpUser.getId(), tmpUser.getEmail(), tmpUser.getLoginName()));
-//        }
+        for(ShareInfo info : usersId){
+            System.out.println("ShareUserId: "+info.getSharedUserId());
+            User tmpUser = userClient.findUserById(info.getSharedUserId());
+            data.add(new ShareUserInfo(tmpUser.getId(), tmpUser.getEmail(), tmpUser.getLoginName()));
+        }
         return new Result(true, StatusCode.OK, "列举成功", data);
     }
 
@@ -78,7 +79,8 @@ public class ShareController {
         List<ShareInfo> usersId = shareService.getSharedUsers(page, size);
         List<ShareUserInfo> data = new ArrayList<>();
         for(ShareInfo info : usersId){
-            User tmpUser = userClient.findUserById(info.getSharedUserId());
+            System.out.println("UserId: "+info.getUserId());
+            User tmpUser = userClient.findUserById(info.getUserId());
             data.add(new ShareUserInfo(tmpUser.getId(), tmpUser.getEmail(), tmpUser.getLoginName()));
         }
         return new Result(true, StatusCode.OK, "列举成功", data);
@@ -91,8 +93,10 @@ public class ShareController {
      */
     @PostMapping("/adduser")
     public Result addShareUser(@RequestBody User user) {
+        //System.out.println("loginName: "+user.getLoginName());
         User existUser = userClient.findByLoginName(user);
-        if (existUser != null) {
+        //System.out.println(existUser.getId());
+        if (existUser.getId() != null) {
             shareService.addShareUser(existUser);
             return new Result(true, StatusCode.OK, "添加分享成功");
         } else {

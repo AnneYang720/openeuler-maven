@@ -31,14 +31,16 @@ public class ShareService {
      * @param user
      */
     public void addShareUser(User user) {
-        String token = (String) request.getAttribute("claims_user");
-        if (token == null || "".equals(token)) {
-            throw new RuntimeException("非个人用户，不能添加");
+        Claims claims = (Claims) request.getAttribute("claims_user");
+        if (claims == null) {//说明当前用户没有user角色
+            throw new RuntimeException("请登陆后再删除用户");
         }
-        String userId = (String) request.getAttribute("user_id");
+        System.out.println("claims.getId() "+claims.getId());
+        List<ShareInfo> curInfo = shareDao.findByUserIdAndSharedUserId(claims.getId(), user.getId());
+        if(curInfo.size()!=0){ throw new RuntimeException("用户已经存在"); }
         ShareInfo shareinfo = new ShareInfo();
         shareinfo.setId(idWorker.nextId() + "");
-        shareinfo.setUserId(userId);
+        shareinfo.setUserId(claims.getId());
         shareinfo.setSharedUserId(user.getId());
         shareDao.save(shareinfo);
     }

@@ -125,7 +125,7 @@ public class UserController {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/find/byid", method = RequestMethod.GET)
+    @RequestMapping(value = "/find/byid", method = RequestMethod.POST)
     public User findUserById(@RequestBody String id) {
         return userService.findById(id);
     }
@@ -136,8 +136,9 @@ public class UserController {
      * @param user
      * @return
      */
-    @RequestMapping(value = "/loinname", method = RequestMethod.GET)
+    @RequestMapping(value = "/find/loginname", method = RequestMethod.POST)
     public User findByLoginName(@RequestBody User user) {
+        System.out.println("findByLoginName: "+user.getLoginName());
         return userService.findByLoginName(user.getLoginName());
     }
 

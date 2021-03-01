@@ -25,20 +25,16 @@ public class JwtInterceptor implements HandlerInterceptor {
         if (header != null && !"".equals(header) && header.startsWith("Bearer ")) {
             String token = header.substring(7);//获取到token
             try {
-                //Jws<Claims> jws = jwtUtil.parseJWT(token);
                 Claims claims = jwtUtil.parseJWT(token);//解析token,如果解析失败就会抛出异常
-                //Claims claims = jws.getBody();
                 String roles = (String) claims.get("roles");//获取token内自定义的声明
-                String id = claims.getId();
                 //判断登录用户为哪个角色，并将token添加到request请求中
                 if (roles != null && roles.equals("admin")) {
-                    System.out.println("设置token：" + token);
-                    request.setAttribute("claims_admin",token);
+                    //System.out.println("设置token：" + token);
+                    request.setAttribute("claims_admin", claims);
                 }
                 if (roles != null && roles.equals("user")) {
-                    request.setAttribute("claims_user",token);
+                    request.setAttribute("claims_user", claims);
                 }
-                request.setAttribute("user_id", id);
             } catch (Exception e) {
                 throw new RuntimeException("令牌不正确！");
             }

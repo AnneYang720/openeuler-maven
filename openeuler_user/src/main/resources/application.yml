@@ -2,7 +2,7 @@ server:
   port: 9008
 spring:
   application:
-    name: openeuler‐user
+    name: openeuler-user
   datasource:
     driverClassName: com.mysql.jdbc.Driver
     url: jdbc:mysql://101.32.203.164:3306/openeuler_user?characterEncoding=utf-8
@@ -10,14 +10,14 @@ spring:
     password: XIAObbMIAOx3HeiHeiHei
   jpa:
     database: MySQL
-    show‐sql: true
+    show-sql: true
 jwt:
   config:
     key: itcast
     #ttl: 360000  # 毫秒
 eureka:
   client:
-    service‐url:
+    service-url:
       defaultZone: http://localhost:6868/eureka
   instance:
-    prefer‐ip‐address: true
+    prefer-ip-address: true

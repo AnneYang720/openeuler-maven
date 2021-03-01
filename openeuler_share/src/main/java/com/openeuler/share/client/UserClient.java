@@ -4,11 +4,11 @@ import com.openeuler.user.pojo.User;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient("openeuler-user")
+@FeignClient(value="openeuler-user")
 public interface UserClient {
-    @GetMapping("/user/loginname")
+    @RequestMapping(value = "/user/find/loginname", method = RequestMethod.POST)
     User findByLoginName(@RequestBody User user);
 
-    @GetMapping( "/user/find/byid")
+    @RequestMapping( value ="/user/find/byid", method = RequestMethod.POST)
     User findUserById(@RequestBody String id);
 }
