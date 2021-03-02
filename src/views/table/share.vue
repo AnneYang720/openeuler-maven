@@ -73,7 +73,7 @@
       >
 
       <div>
-      <div style="line-height:40px;margin-left:5%"> <span>上传用户</span><span style="color:black;margin-left:27px">{{uploadUser}}</span> </div>
+      <div style="line-height:40px;margin-left:5%"> <span>上传用户</span><span style="color:black;margin-left:27px">{{currUser}}</span> </div>
       <div style="line-height:40px;margin-left:5%"> <span>上传时间</span><span style="color:black;margin-left:27px">{{uploadDate}}</span> </div>
       
       <div style="line-height:40px;margin-left:5%"> 版本
@@ -120,7 +120,7 @@ import shareApi from '@/api/share'
 export default {
     data(){
         return {
-          uploadUser: '', //当前用户昵称
+          currUser: '', //当前用户昵称
           uploadDate: '', //当前文件的上传时间
           list:[], //首页用包名得到的列表
           urllist:[], //jar,pom包的下载地址
@@ -191,10 +191,10 @@ export default {
           this.vList.reverse()
           this.curRow = row
           this.chosenVersion = row.latestVersion//this.vList[0].value
-          this.uploadUser = row.uploadUser
+          this.currUser = row.uploadUser
           let dt = new Date(row.updateTime)
           this.uploadDate = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate() + ' ' + dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds()
-          mavenApi.getUrl(this.$router.currentRoute.name,row.groupId,row.artifactId,this.chosenVersion).then(response =>{
+          mavenApi.getShareUrl(row.groupId,row.artifactId,this.chosenVersion,row.userId).then(response =>{
             this.urllist = response.data
           }).catch(() => {
             this.$message({
@@ -207,9 +207,9 @@ export default {
         //更改版本后获得新的url
         urlChange(){
           //console.log(this.curRow)
-          mavenApi.getUrl(this.$router.currentRoute.name,this.curRow.groupId,this.curRow.artifactId,this.chosenVersion).then(response =>{
+          mavenApi.getShareUrl(this.curRow.groupId,this.curRow.artifactId,this.chosenVersion,this.curRow.userId).then(response =>{
             this.urllist = response.data
-            let dt = new Date(this.urllist[0].updateTime)
+            let dt = new Date(this.urllist[0].updateDate)
             this.uploadDate = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate() + ' ' + dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds()
           }).catch(() => {
             this.$message({

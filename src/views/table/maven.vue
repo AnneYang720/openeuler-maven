@@ -424,7 +424,7 @@ export default {
           //console.log(this.curRow)
           mavenApi.getUrl(this.$router.currentRoute.name,this.curRow.groupId,this.curRow.artifactId,this.chosenVersion).then(response =>{
             this.urllist = response.data
-            let dt = new Date(this.urllist[0].updateTime)
+            let dt = new Date(this.urllist[0].updateDate)
             this.uploadDate = dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate() + ' ' + dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds()
           }).catch(() => {
             this.$message({

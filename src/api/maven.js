@@ -51,5 +51,12 @@ export default{
             url: `/maven/${repo}/geturl/${groupId}/${artifactId}/${chosenVersion}/`,
             method: 'get'
         })
+    },
+
+    getShareUrl(groupId,artifactId,chosenVersion,userId){
+        return request({
+            url: `/maven/getshareurl/${groupId}/${artifactId}/${chosenVersion}/${userId}/`,
+            method: 'get'
+        })
     }
 } 
