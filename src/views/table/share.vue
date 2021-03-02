@@ -141,8 +141,12 @@ export default {
     },
     methods: {
         fetchData(){
-            shareApi.shareGetList(this.currentPage,this.pageSize).then(response =>{
+            shareApi.shareGetList().then(response =>{
+                //this.currentPage,this.pageSize
                 //this.total = response.data.total
+                // let start = (this.currentPage-1)*this.pageSize
+                // let end = this.currentPage*this.pageSize
+                // this.list = response.data.subList(start,end)
                 this.list = response.data
                 //this.urllist = response.data.urls
             }).catch(() => {
@@ -153,7 +157,7 @@ export default {
 
         shareSearch(){
           if (this.keywords!=='') {
-            shareApi.shareSearch(this.$router.currentRoute.name, this.currentPage, this.pageSize, this.keywords).then(response =>{
+            shareApi.shareSearch(this.keywords).then(response =>{
                 this.list = response.data
             }).catch(() => {
                 this.total = 0
@@ -218,11 +222,6 @@ export default {
             })
           })
         },
-
-
-
-
-
     },
     watch: {
       '$route': 'fetchData'

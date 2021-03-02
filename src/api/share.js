@@ -1,14 +1,14 @@
 import request from '@/utils/request'
 export default{
-    shareGetList(page,size){
+    shareGetList(){
         return request({
-            url: `/share/getlist/${page}/${size}`,//ES6写法
+            url: `/share/getlist`,//ES6写法
             method: 'get'
         });
     },
-    shareSearch(repo,page,size,keywords){
+    shareSearch(keywords){
         return request({
-            url: `/share/search/${page}/${size}`,//ES6写法
+            url: `/share/search`,//ES6写法
             method: 'post',
             data: keywords
         });
