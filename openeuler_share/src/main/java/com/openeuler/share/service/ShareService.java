@@ -76,6 +76,14 @@ public class ShareService {
         return shareDao.findByUserId(claims.getId(), pageable);
     }
 
+    public List<ShareInfo> getSharedUsers() {
+        Claims claims = (Claims) request.getAttribute("claims_user");
+        if (claims == null) {//说明当前用户没有user角色
+            throw new RuntimeException("请登陆");
+        }
+        return shareDao.findBySharedUserId(claims.getId());
+    }
+
     public List<ShareInfo> getSharedUsers(int page, int size) {
         Claims claims = (Claims) request.getAttribute("claims_user");
         if (claims == null) {//说明当前用户没有user角色

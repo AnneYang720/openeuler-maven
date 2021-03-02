@@ -1,9 +1,12 @@
 package com.openeuler.share.controller;
 
+import com.openeuler.share.client.StorageClient;
 import com.openeuler.share.client.UserClient;
 import com.openeuler.share.pojo.ShareInfo;
 import com.openeuler.share.pojo.ShareUserInfo;
+import com.openeuler.share.pojo.SharedFileInfo;
 import com.openeuler.share.service.ShareService;
+import com.openeuler.storage.dao.FileDao;
 import com.openeuler.user.pojo.User;
 import entity.Result;
 import entity.StatusCode;
@@ -21,19 +24,31 @@ public class ShareController {
     private ShareService shareService;
     @Autowired
     private UserClient userClient;
-//
-//    /**
-//     * 列举被分享的包信息
-//     * 带分页，从第 page 页开始的 size 个
-//     *
-//     * @param page
-//     * @param size
-//     */
-//    @GetMapping("/getlist/{page}/{size}")
-//    public Result getShareListPage(@PathVariable int page, @PathVariable int size) {
-//        List<FileDao.ShareArtifactVersionList> data = shareService.getShareList(page, size);
-//        return new Result(true, StatusCode.OK, "列举成功", data);
-//    }
+    @Autowired
+    private StorageClient storageClient;
+
+    /**
+     * 列举被分享的包信息
+     * 带分页，从第 page 页开始的 size 个
+     *
+     * @param page
+     * @param size
+     */
+    @GetMapping("/getlist/{page}/{size}")
+    public Result getShareListPage(@PathVariable int page, @PathVariable int size) {
+        List<ShareInfo> usersId = shareService.getSharedUsers();
+        List<SharedFileInfo> data = new ArrayList<>();
+        for(ShareInfo info : usersId){
+            List<SharedFileInfo> tmpList = storageClient.getListById(info.getUserId());
+            User tmpUser = userClient.findUserById(info.getUserId());
+            for(SharedFileInfo fileinfo:tmpList){
+                fileinfo.setUploadUser(tmpUser.getLoginName());
+                fileinfo.setUserId(info.getUserId());
+            }
+            data.addAll(tmpList);
+        }
+        return new Result(true, StatusCode.OK, "列举成功", data);
+    }
 //
 //    /**
 //     * 根据关键词搜索

@@ -3,6 +3,7 @@ package com.openeuler.storage.controller;
 import com.openeuler.storage.dao.FileDao;
 import com.openeuler.storage.pojo.FileInfo;
 import com.openeuler.storage.pojo.UrlInfo;
+import com.openeuler.user.pojo.User;
 import entity.PageResult;
 import entity.Result;
 import entity.StatusCode;
@@ -52,6 +53,18 @@ public class S3FileController {
     }
 
     /**
+     * 根据用户列举repo中的包信息
+     * 带分页，从第 page 页开始的 size 个
+     *
+     * @param userId
+     */
+    @RequestMapping(value="/getlist/byid", method = RequestMethod.POST)
+    public List<FileDao.ArtifactVersionList> getListById(@RequestBody String userId) {
+        System.out.println("getListById: "+userId);
+        return s3FileService.getListById(userId);
+    }
+
+    /**
      * 根据关键词搜索
      * 带分页，从第 page 页开始的 size 个
      *
@@ -77,6 +90,20 @@ public class S3FileController {
     public Result getUrl(@PathVariable String repo, @PathVariable String groupId, @PathVariable String artifactId,  @PathVariable String chosenVersion) {
         System.out.println(repo + groupId + artifactId + chosenVersion);
         List<UrlInfo> data = s3FileService.getUrlList(repo, groupId, artifactId, chosenVersion);
+        return new Result(true, StatusCode.OK, "列举成功", data);
+    }
+
+    /**
+     * 获得选中被分享文件的下载地址
+     *
+     * @param userId
+     * @param groupId
+     * @param artifactId
+     * @param chosenVersion
+     */
+    @GetMapping("/getshareurl/{groupId}/{artifactId}/{chosenVersion}/{userId}")
+    public Result getShareUrl(@PathVariable String groupId, @PathVariable String artifactId,  @PathVariable String chosenVersion, @PathVariable String userId) {
+        List<UrlInfo> data = s3FileService.getShareUrlList(groupId, artifactId, chosenVersion, userId);
         return new Result(true, StatusCode.OK, "列举成功", data);
     }
 

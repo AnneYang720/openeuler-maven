@@ -48,6 +48,14 @@ public interface FileDao extends JpaRepository<FileInfo, String>, JpaSpecificati
     List<ArtifactVersionList> findVersionsGroupByArtifactAndGroupId(@Param("userId") String userId,
                                                                     @Param("repo") String repo, int offset, int size);
 
+    @Query(value = "SELECT group_concat(version) AS versionList, count(version) as versionNum, " +
+            "group_concat(id) AS idList, max(update_date) AS updateTime, " +
+            "user_id AS userId, group_id AS groupId, artifact_id AS artifactId, " +
+            "substring_index(group_concat(version), ',', -1) AS latestVersion " +
+            "FROM tb_fileinfo WHERE user_id = :userId AND repo = 'release' " +
+            "GROUP BY group_id, artifact_id, user_id, repo", nativeQuery = true)
+    List<ArtifactVersionList> findVersionsGroupByArtifactAndGroupId(@Param("userId") String userId);
+
 
     @Query(value = "SELECT group_concat(version) AS versionList, count(version) as versionNum, " +
             "group_concat(id) AS idList, max(update_date) AS updateTime, " +
@@ -59,6 +67,8 @@ public interface FileDao extends JpaRepository<FileInfo, String>, JpaSpecificati
             "LIMIT :size OFFSET :offset", nativeQuery = true)
     List<ArtifactVersionList> searchVersionsGroupByArtifactAndGroupId(@Param("userId") String userId,
                    @Param("repo") String repo, @Param("keywords") String keywords, int offset, int size);
+
+
 
 
     public static interface ArtifactVersionList {

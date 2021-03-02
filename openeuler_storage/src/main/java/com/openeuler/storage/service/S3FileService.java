@@ -208,6 +208,10 @@ public class S3FileService extends S3ClientService {
         return this.fileDao.findVersionsGroupByArtifactAndGroupId(claims.getId(), repo, page * size, size);
     }
 
+    public List<FileDao.ArtifactVersionList> getListById(String uerId) {
+        return this.fileDao.findVersionsGroupByArtifactAndGroupId(uerId);
+    }
+
     public List<FileDao.ArtifactVersionList> searchList(String repo, int page, int size, String keywords) {
         Claims claims = (Claims) request.getAttribute("claims_user");
         if (claims == null) {//说明当前用户没有user角色
@@ -225,6 +229,18 @@ public class S3FileService extends S3ClientService {
         }
 
         List<FileInfo> curInfo = fileDao.findByUserIdAndRepoAndGroupIdAndArtifactIdAndVersion(claims.getId(), repo, groupId, artifactId, version);
+        if(curInfo.size()!=1){
+            throw new RuntimeException("无法定位文件");
+        }
+        List<UrlInfo> res = new ArrayList<>();
+        String filename = artifactId + "-" + version+".";
+        res.add(new UrlInfo(filename+ curInfo.get(0).getPackaging(), curInfo.get(0).getJarUrl(), curInfo.get(0).getUpdateDate()));
+        res.add(new UrlInfo(filename+"pom", curInfo.get(0).getPomUrl(), curInfo.get(0).getUpdateDate()));
+        return res;
+    }
+
+    public List<UrlInfo> getShareUrlList(String groupId, String artifactId, String version, String userId) {
+        List<FileInfo> curInfo = fileDao.findByUserIdAndRepoAndGroupIdAndArtifactIdAndVersion(userId, "release", groupId, artifactId, version);
         if(curInfo.size()!=1){
             throw new RuntimeException("无法定位文件");
         }

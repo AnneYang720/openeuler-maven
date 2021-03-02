@@ -20,6 +20,8 @@ public interface ShareDao extends JpaRepository<ShareInfo, String>, JpaSpecifica
 
     List<ShareInfo> findBySharedUserId(String userId, Pageable pageable);
 
+    List<ShareInfo> findBySharedUserId(String userId);
+
 
     public static interface ShareArtifactVersionList {
         String getGroupId();
