@@ -2,10 +2,11 @@ package com.openeuler.base;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import util.IdWorker;
+import util.JwtUtil;
 
+@EnableZuulProxy
 @SpringBootApplication
 public class BaseApplication {
     public static void main(String[] args) {
@@ -13,7 +14,7 @@ public class BaseApplication {
     }
 
     @Bean
-    public IdWorker idWorker(){
-        return new IdWorker(1,1);
+    public JwtUtil jwtUtil() {
+        return new JwtUtil();
     }
 }

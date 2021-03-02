@@ -4,6 +4,7 @@ import com.openeuler.share.pojo.SharedFileInfo;
 import com.openeuler.storage.dao.FileDao;
 import com.openeuler.user.pojo.User;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -14,4 +15,7 @@ import java.util.List;
 public interface StorageClient {
     @RequestMapping( value ="/maven/getlist/byid", method = RequestMethod.POST)
     List<SharedFileInfo> getListById(@RequestBody String id);
+
+    @RequestMapping( value ="/maven/searchlist/{id}", method = RequestMethod.POST)
+    List<SharedFileInfo> searchListById(@PathVariable String id, @RequestBody String keywords);
 }

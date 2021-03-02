@@ -72,8 +72,8 @@ public class UserController {
      * @return
      */
     @RequestMapping(value = "/info", method = RequestMethod.GET)
-    public Result getCurInfo() {
-        return new Result(true, StatusCode.OK, "查询成功", userService.getCurInfo());
+    public Result getCurInfo(@RequestHeader(value="X-User-Id") String userId) {
+        return new Result(true, StatusCode.OK, "查询成功", userService.getCurInfo(userId));
     }
 
     /**
@@ -81,9 +81,9 @@ public class UserController {
      * @param user
      */
     @RequestMapping(value="/saveinfo", method= RequestMethod.PUT)
-    public Result updateInfo(@RequestBody User user){
+    public Result updateInfo(@RequestBody User user, @RequestHeader(value="X-User-Id") String userId){
         // user.setId(parseToken(token))
-        userService.update(user);
+        userService.update(user,userId);
         return new Result(true, StatusCode.OK, "修改成功");
     }
 
@@ -125,7 +125,7 @@ public class UserController {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/find/byid", method = RequestMethod.POST)
+    @RequestMapping(value = "/find/id", method = RequestMethod.POST)
     public User findUserById(@RequestBody String id) {
         return userService.findById(id);
     }
@@ -141,20 +141,6 @@ public class UserController {
         System.out.println("findByLoginName: "+user.getLoginName());
         return userService.findByLoginName(user.getLoginName());
     }
-
-//    /**
-//     * 分页+多条件查询
-//     * @param searchMap 查询条件封装
-//     * @param page 页码
-//     * @param size 页大小
-//     * @return 分页结果
-//     */
-//    @RequestMapping(value="/search/{page}/{size}", method=RequestMethod.POST)
-//    public Result findSearch(@RequestBody Map searchMap ,  @PathVariable int page,  @PathVariable int size){
-//        Page<User> pageList = userService.findSearch(searchMap,  page,  size);
-//        return  new Result(true, StatusCode.OK, "查询成功",   new PageResult<User>(pageList.getTotalElements(),  pageList.getContent()) );
-//    }
-//
 
     /**
      * 根据条件查询

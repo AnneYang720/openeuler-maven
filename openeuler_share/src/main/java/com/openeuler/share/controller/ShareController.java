@@ -6,7 +6,6 @@ import com.openeuler.share.pojo.ShareInfo;
 import com.openeuler.share.pojo.ShareUserInfo;
 import com.openeuler.share.pojo.SharedFileInfo;
 import com.openeuler.share.service.ShareService;
-import com.openeuler.storage.dao.FileDao;
 import com.openeuler.user.pojo.User;
 import entity.Result;
 import entity.StatusCode;
@@ -31,12 +30,10 @@ public class ShareController {
      * 列举被分享的包信息
      * 带分页，从第 page 页开始的 size 个
      *
-     * @param page
-     * @param size
      */
-    @GetMapping("/getlist/{page}/{size}")
-    public Result getShareListPage(@PathVariable int page, @PathVariable int size) {
-        List<ShareInfo> usersId = shareService.getSharedUsers();
+    @GetMapping("/getlist")
+    public Result getShareListPage(@RequestHeader(value="X-User-Id") String userId) {
+        List<ShareInfo> usersId = shareService.getSharedUsers(userId);
         List<SharedFileInfo> data = new ArrayList<>();
         for(ShareInfo info : usersId){
             List<SharedFileInfo> tmpList = storageClient.getListById(info.getUserId());
@@ -49,19 +46,28 @@ public class ShareController {
         }
         return new Result(true, StatusCode.OK, "列举成功", data);
     }
-//
-//    /**
-//     * 根据关键词搜索
-//     * 带分页，从第 page 页开始的 size 个
-//     *
-//     * @param page
-//     * @param size
-//     */
-//    @PostMapping("/search/{page}/{size}")
-//    public Result shareSearch(@PathVariable int page, @PathVariable int size) {
-//        List<FileDao.ShareArtifactVersionList> data = shareService.getShareList(page, size);
-//        return new Result(true, StatusCode.OK, "列举成功", data);
-//    }
+
+    /**
+     * 根据关键词搜索
+     * 带分页，从第 page 页开始的 size 个
+     *
+     * @param keywords
+     */
+    @PostMapping("/search")
+    public Result shareSearch(@RequestBody String keywords, @RequestHeader(value="X-User-Id") String userId) {
+        List<ShareInfo> usersId = shareService.getSharedUsers(userId);
+        List<SharedFileInfo> data = new ArrayList<>();
+        for(ShareInfo info : usersId){
+            List<SharedFileInfo> tmpList = storageClient.searchListById(info.getUserId(),keywords);
+            User tmpUser = userClient.findUserById(info.getUserId());
+            for(SharedFileInfo fileinfo:tmpList){
+                fileinfo.setUploadUser(tmpUser.getLoginName());
+                fileinfo.setUserId(info.getUserId());
+            }
+            data.addAll(tmpList);
+        }
+        return new Result(true, StatusCode.OK, "列举成功", data);
+    }
 
     /**
      * 列举分享的用户信息
@@ -71,8 +77,8 @@ public class ShareController {
      * @param size
      */
     @RequestMapping(value="/userlist/{page}/{size}", method = RequestMethod.GET)
-    public Result getShareUsers(@PathVariable int page, @PathVariable int size) {
-        List<ShareInfo> usersId = shareService.getShareUsers(page, size);
+    public Result getShareUsers(@PathVariable int page, @PathVariable int size, @RequestHeader(value="X-User-Id") String userId) {
+        List<ShareInfo> usersId = shareService.getShareUsers(page, size, userId);
         List<ShareUserInfo> data = new ArrayList<>();
         for(ShareInfo info : usersId){
             System.out.println("ShareUserId: "+info.getSharedUserId());
@@ -90,8 +96,8 @@ public class ShareController {
      * @param size
      */
     @GetMapping("/shareduserlist/{page}/{size}")
-    public Result getSharedUsers(@PathVariable int page, @PathVariable int size) {
-        List<ShareInfo> usersId = shareService.getSharedUsers(page, size);
+    public Result getSharedUsers(@PathVariable int page, @PathVariable int size, @RequestHeader(value="X-User-Id") String userId) {
+        List<ShareInfo> usersId = shareService.getSharedUsers(page, size, userId);
         List<ShareUserInfo> data = new ArrayList<>();
         for(ShareInfo info : usersId){
             System.out.println("UserId: "+info.getUserId());
@@ -107,12 +113,12 @@ public class ShareController {
      * @param user
      */
     @PostMapping("/adduser")
-    public Result addShareUser(@RequestBody User user) {
+    public Result addShareUser(@RequestBody User user, @RequestHeader(value="X-User-Id") String myId) {
         //System.out.println("loginName: "+user.getLoginName());
         User existUser = userClient.findByLoginName(user);
         //System.out.println(existUser.getId());
         if (existUser.getId() != null) {
-            shareService.addShareUser(existUser);
+            shareService.addShareUser(existUser,myId);
             return new Result(true, StatusCode.OK, "添加分享成功");
         } else {
             return new Result(false, StatusCode.ERROR, "添加失败，用户名不存在");
@@ -125,8 +131,8 @@ public class ShareController {
      * @param userId
      */
     @RequestMapping(value ="/delete/{userId}", method = RequestMethod.DELETE)
-    public Result deleteShare(@PathVariable String userId) {
-        shareService.deleteShare(userId);
+    public Result deleteShare(@PathVariable String userId, @RequestHeader(value="X-User-Id") String myId) {
+        shareService.deleteShare(myId, userId);
         return new Result(true, StatusCode.OK, "用户删除成功");
     }
 
@@ -136,8 +142,8 @@ public class ShareController {
      * @param userId
      */
     @RequestMapping(value ="/quit/{userId}", method = RequestMethod.DELETE)
-    public Result quitShare(@PathVariable String userId) {
-        shareService.quitShare(userId);
+    public Result quitShare(@PathVariable String userId, @RequestHeader(value="X-User-Id") String myId) {
+        shareService.quitShare(userId, myId);
         return new Result(true, StatusCode.OK, "退出分享成功");
     }
 }

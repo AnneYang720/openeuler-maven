@@ -9,24 +9,14 @@ import com.openeuler.storage.dao.FileDao;
 import com.openeuler.storage.pojo.FileInfo;
 import com.openeuler.storage.pojo.UrlInfo;
 import com.openeuler.storage.util.FileUtils;
-import com.openeuler.user.pojo.User;
-import entity.Result;
-import entity.StatusCode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 import util.IdWorker;
 import io.jsonwebtoken.Claims;
 
 import java.util.*;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 
 import java.io.File;
@@ -85,17 +75,7 @@ public class S3FileService extends S3ClientService {
     }
 
     // Create pre-signed upload url.
-    public String[] createUploadUrl(FileInfo fileInfo, String repo) {
-        //验证是否登录，如果登录就获取当前登录用户的ID
-        Claims claims = (Claims) request.getAttribute("claims_user");
-        if (claims == null) {//说明当前用户没有user角色
-            throw new RuntimeException("请登陆后再上传文件");
-        }
-
-        //fileInfo.setId(idWorker.nextId() + "");
-        //fileInfo.setUserId(claims.getId());
-
-        // Set the pre-signed URL to expire after one hour.
+    public String[] createUploadUrl(FileInfo fileInfo, String repo, String userId) {
         java.util.Date expiration = new java.util.Date();
         long expTimeMillis = expiration.getTime();
         expTimeMillis += 1000 * 60 * 60;
@@ -105,13 +85,13 @@ public class S3FileService extends S3ClientService {
         System.out.println("Generating pre-signed URL.");
         String filename = fileInfo.getArtifactId() + "-" + fileInfo.getVersion()+".";
 
-        String objectKeyJAR = repo+"/"+fileInfo.getGroupId().replace(".", "/") + "/" + fileInfo.getArtifactId() + "/" + fileInfo.getVersion() + "/" + filename + fileInfo.getPackaging();
+        String objectKeyJAR = userId+"/"+repo+"/"+fileInfo.getGroupId().replace(".", "/") + "/" + fileInfo.getArtifactId() + "/" + fileInfo.getVersion() + "/" + filename + fileInfo.getPackaging();
         GeneratePresignedUrlRequest generatePresignedUrlRequestJAR = new GeneratePresignedUrlRequest(getBucketName(), objectKeyJAR)
                 .withMethod(HttpMethod.PUT)
                 .withExpiration(expiration);
         String uploadJARUrl = getClient().generatePresignedUrl(generatePresignedUrlRequestJAR).toString();
 
-        String objectKeyPOM = repo+"/"+fileInfo.getGroupId().replace(".", "/") + "/" + fileInfo.getArtifactId() + "/" + fileInfo.getVersion() + "/" + filename + "pom";
+        String objectKeyPOM = userId+"/"+repo+"/"+fileInfo.getGroupId().replace(".", "/") + "/" + fileInfo.getArtifactId() + "/" + fileInfo.getVersion() + "/" + filename + "pom";
         GeneratePresignedUrlRequest generatePresignedUrlRequestPOM = new GeneratePresignedUrlRequest(getBucketName(), objectKeyPOM)
                 .withMethod(HttpMethod.PUT)
                 .withExpiration(expiration);
@@ -124,19 +104,14 @@ public class S3FileService extends S3ClientService {
         return new String[] {uploadJARUrl,uploadPOMUrl};
     }
 
-    public void saveInfo(FileInfo fileInfo, String repo) {
-        //验证是否登录，如果登录就获取当前登录用户的ID
-        Claims claims = (Claims) request.getAttribute("claims_user");
-        if (claims == null) {//说明当前用户没有user角色
-            throw new RuntimeException("请登陆后再上传文件");
-        }
+    public void saveInfo(FileInfo fileInfo, String repo, String userId) {
 
         fileInfo.setId(idWorker.nextId() + "");
-        fileInfo.setUserId(claims.getId());
+        fileInfo.setUserId(userId);
         fileInfo.setUpdateDate(new Date());
         fileInfo.setRepo(repo);
         String filename = fileInfo.getArtifactId() + "-" + fileInfo.getVersion()+".";
-        String objectKeyPOM = repo+"/"+fileInfo.getGroupId().replace(".", "/") + "/" + fileInfo.getArtifactId() + "/" + fileInfo.getVersion() + "/" + filename;
+        String objectKeyPOM = userId+"/"+repo+"/"+fileInfo.getGroupId().replace(".", "/") + "/" + fileInfo.getArtifactId() + "/" + fileInfo.getVersion() + "/" + filename;
         fileInfo.setJarUrl(getUrl().concat(objectKeyPOM+fileInfo.getPackaging()));
         fileInfo.setPomUrl(getUrl().concat(objectKeyPOM+"pom"));
 
@@ -199,36 +174,27 @@ public class S3FileService extends S3ClientService {
     }
 
 
-    public List<FileDao.ArtifactVersionList> getList(String repo, int page, int size) {
-        Claims claims = (Claims) request.getAttribute("claims_user");
-        if (claims == null) {//说明当前用户没有user角色
-            throw new RuntimeException("请登陆");
-        }
-
-        return this.fileDao.findVersionsGroupByArtifactAndGroupId(claims.getId(), repo, page * size, size);
+    public List<FileDao.ArtifactVersionList> getList(String repo, int page, int size, String userId) {
+        return this.fileDao.findVersionsGroupByArtifactAndGroupId(userId, repo, page * size, size);
     }
 
     public List<FileDao.ArtifactVersionList> getListById(String uerId) {
         return this.fileDao.findVersionsGroupByArtifactAndGroupId(uerId);
     }
 
-    public List<FileDao.ArtifactVersionList> searchList(String repo, int page, int size, String keywords) {
-        Claims claims = (Claims) request.getAttribute("claims_user");
-        if (claims == null) {//说明当前用户没有user角色
-            throw new RuntimeException("请登陆");
-        }
+    public List<FileDao.ArtifactVersionList> searchList(String repo, int page, int size, String keywords, String userId) {
         keywords = "%"+keywords+"%";
-        return this.fileDao.searchVersionsGroupByArtifactAndGroupId(claims.getId(), repo, keywords,page * size, size);
+        return this.fileDao.searchVersionsGroupByArtifactAndGroupId(userId, repo, keywords,page * size, size);
         //return this.fileDao.searchVersionsGroupByArtifactAndGroupId("1353720995084636160", repo, keywords,page * size, size);
     }
 
-    public List<UrlInfo> getUrlList(String repo, String groupId, String artifactId, String version) {
-        Claims claims = (Claims) request.getAttribute("claims_user");
-        if (claims == null) {//说明当前用户没有user角色
-            throw new RuntimeException("请登陆");
-        }
+    public List<FileDao.ArtifactVersionList> searchListById(String userId, String keywords) {
+        keywords = "%"+keywords+"%";
+        return this.fileDao.searchVersionsGroupByArtifactAndGroupId(userId, keywords);
+    }
 
-        List<FileInfo> curInfo = fileDao.findByUserIdAndRepoAndGroupIdAndArtifactIdAndVersion(claims.getId(), repo, groupId, artifactId, version);
+    public List<UrlInfo> getUrlList(String repo, String groupId, String artifactId, String version, String userId) {
+        List<FileInfo> curInfo = fileDao.findByUserIdAndRepoAndGroupIdAndArtifactIdAndVersion(userId, repo, groupId, artifactId, version);
         if(curInfo.size()!=1){
             throw new RuntimeException("无法定位文件");
         }
@@ -251,13 +217,8 @@ public class S3FileService extends S3ClientService {
         return res;
     }
 
-    public void removeFileGroup(String repo, String groupId, String artifactId){
-        Claims claims = (Claims) request.getAttribute("claims_user");
-        if (claims == null) {//说明当前用户没有user角色
-            throw new RuntimeException("请登陆后再删除文件");
-        }
-
-        List<FileInfo> filesInfo = fileDao.findByUserIdAndRepoAndGroupIdAndArtifactId(claims.getId(), repo, groupId, artifactId);
+    public void removeFileGroup(String repo, String groupId, String artifactId, String userId){
+        List<FileInfo> filesInfo = fileDao.findByUserIdAndRepoAndGroupIdAndArtifactId(userId, repo, groupId, artifactId);
         if (filesInfo == null || filesInfo.isEmpty()) {
             throw new RuntimeException("无法定位文件包");
         }
@@ -270,13 +231,8 @@ public class S3FileService extends S3ClientService {
         }
     }
 
-    public void removeFile(String repo, String groupId, String artifactId, String version) {
-        Claims claims = (Claims) request.getAttribute("claims_user");
-        if (claims == null) {//说明当前用户没有user角色
-            throw new RuntimeException("请登陆后再删除文件");
-        }
-
-        List<FileInfo> curInfo = fileDao.findByUserIdAndRepoAndGroupIdAndArtifactIdAndVersion(claims.getId(), repo, groupId, artifactId, version);
+    public void removeFile(String repo, String groupId, String artifactId, String version, String userId) {
+        List<FileInfo> curInfo = fileDao.findByUserIdAndRepoAndGroupIdAndArtifactIdAndVersion(userId, repo, groupId, artifactId, version);
         if(curInfo.size()!=1){
             throw new RuntimeException("无法定位文件");
         }

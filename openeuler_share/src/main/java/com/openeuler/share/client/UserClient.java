@@ -9,6 +9,6 @@ public interface UserClient {
     @RequestMapping(value = "/user/find/loginname", method = RequestMethod.POST)
     User findByLoginName(@RequestBody User user);
 
-    @RequestMapping( value ="/user/find/byid", method = RequestMethod.POST)
+    @RequestMapping( value ="/user/find/id", method = RequestMethod.POST)
     User findUserById(@RequestBody String id);
 }

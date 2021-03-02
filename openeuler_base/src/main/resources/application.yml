@@ -3,12 +3,29 @@ server:
 spring:
   application:
     name: openeuler-base #指定服务名
-  datasource:
-    driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://101.32.203.164:3306/openeuler_base?characterEncoding=utf-8
-    username: root
-    password: XIAObbMIAOx3HeiHeiHei
-  jpa:
-    database: MySQL
-    show-sql: true
-    generate-ddl: true
+jwt:
+  config:
+    key: itcast
+    ttl: 86400000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:6868/eureka/
+  instance:
+    prefer-ip-address: true
+
+zuul:
+  routes:
+    user:
+      path: /user/**
+      service-id: openeuler-user
+      strip-prefix: false
+    storage:
+      path: /maven/**
+      service-id: openeuler-storage
+      strip-prefix: false
+    share:
+      path: /share/**
+      service-id: openeuler-share
+      strip-prefix: false

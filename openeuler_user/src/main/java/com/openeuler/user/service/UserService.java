@@ -76,33 +76,19 @@ public class UserService {
      * 获得当前用户信息
      *
      */
-    public User getCurInfo() {
-        String token = (String) request.getAttribute("claims_user");
-        System.out.println("token = " + token);
-        if (token == null || "".equals(token)) {
-            throw new RuntimeException("登录超时");
-        }
-        String id = (String) request.getAttribute("user_id");
-        User currUser = userDao.findById(id).get();
+    public User getCurInfo(String userId) {
+//        String token = (String) request.getAttribute("claims_user");
+//        System.out.println("token = " + token);
+//        if (token == null || "".equals(token)) {
+//            throw new RuntimeException("登录超时");
+//        }
+//        String id = (String) request.getAttribute("user_id");
+        User currUser = userDao.findById(userId).get();
         currUser.setId("");
         currUser.setPassword("");
         return currUser;
     }
 
-//    /**
-//     * 条件查询+分页
-//     *
-//     * @param whereMap
-//     * @param page
-//     * @param size
-//     * @return
-//     */
-//    public Page<User> findSearch(Map whereMap, int page, int size) {
-//        Specification<User> specification = createSpecification(whereMap);
-//        PageRequest pageRequest = PageRequest.of(page - 1, size);
-//        return userDao.findAll(specification, pageRequest);
-//    }
-//
 
     /**
      * 条件查询
@@ -166,14 +152,8 @@ public class UserService {
      *
      * @param user
      */
-    public void update(User user) {
-        String token = (String) request.getAttribute("claims_user");
-        System.out.println("token = " + token);
-        if (token == null || "".equals(token)) {
-            throw new RuntimeException("非个人用户，不能修改");
-        }
-        String id = (String) request.getAttribute("user_id");
-        User oriUser = mergeUserInfo(user, id);
+    public void update(User user, String userId) {
+        User oriUser = mergeUserInfo(user, userId);
         oriUser.setUpdateDate(new Date());
         userDao.save(oriUser);
     }
