@@ -183,14 +183,14 @@ public class UserService {
             oriUser.setPassword(encoder.encode(user.getPassword()));
         }
 
-        if (user.getEmail() != null && !"".equals(user.getEmail())) {
+        if (user.getEmail() != null && !"".equals(user.getEmail()) && !user.getEmail().equals(oriUser.getEmail())) {
             User existUser = userDao.findByEmail(user.getEmail());
             if (existUser != null) {
                 throw new RuntimeException("该邮箱已被注册");
             }
             oriUser.setEmail(user.getEmail());
         }
-        if (user.getLoginName() != null && !"".equals(user.getLoginName())) {
+        if (user.getLoginName() != null && !"".equals(user.getLoginName()) && !user.getLoginName().equals(oriUser.getLoginName())) {
             User existUser = userDao.findByLoginName(user.getLoginName());
             if (existUser != null) {
                 throw new RuntimeException("该用户名已被注册");
