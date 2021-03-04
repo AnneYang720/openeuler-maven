@@ -1,6 +1,6 @@
 <template>
 <div class="dashboard-container">
-<el-row :gutter="20" type="flex" >
+<el-row :gutter="5" type="flex" >
   <el-col :span="20">
 
     <span style="color:blue;font-size:20px;font-weight:bold;margin-left:5%"> 我分享的 </span>
@@ -31,8 +31,8 @@
     </el-table>
 
     <el-pagination
-      @size-change="fetchData"
-      @current-change="fetchData"
+      @size-change="handleSizeChange1"
+      @current-change="handleCurrentChange1"
       :current-page="currentPage1"
       :page-sizes="[5, 10, 20]"
       :page-size="pageSize1"
@@ -71,8 +71,8 @@
     </el-table>
 
     <el-pagination
-      @size-change="fetchData"
-      @current-change="fetchData"
+      @size-change="handleSizeChange2"
+      @current-change="handleCurrentChange2"
       :current-page="currentPage2"
       :page-sizes="[5, 10, 20]"
       :page-size="pageSize2"
@@ -81,9 +81,7 @@
       align="center"
       style="margin-top:3%">
     </el-pagination>
-    <!-- <div class="dashboard-text">name:{{loginName}}</div>
-    <div class="dashboard-text">email:{{email}}</div>
-    <div class="dashboard-text">roles:<span v-for='role in roles' :key='role'>{{role}}</span></div> -->
+    
     </el-col>
     <!-- 弹出窗口 -->
     <el-dialog
@@ -146,16 +144,52 @@ export default {
     },
     methods: {
         fetchData(){
+            this.fetchShareUsers();
+            this.fetchSharedUsers();
+        },
+
+        fetchShareUsers(){
             shareApi.getShareUsers(this.currentPage1,this.pageSize1).then(response =>{
-                this.shareuserlist = response.data
-                shareApi.getSharedUsers(this.currentPage2,this.pageSize2).then(response =>{
-                  this.shareduserlist = response.data
-                })
+                console.log(this.currentPage1)
+                console.log(this.pageSize1)
+                this.total1 = response.data.total
+                this.shareuserlist = response.data.rows
             }).catch(() => {
                 this.total1 = 0
-                this.total2 = 0
-                this.list = []
+                this.shareuserlist = []
           });
+        },
+
+        fetchSharedUsers(){
+            shareApi.getSharedUsers(this.currentPage2,this.pageSize2).then(response =>{
+                console.log(this.currentPage2)
+                console.log(this.pageSize2)
+                this.total2 = response.data.total
+                this.shareduserlist = response.data.rows
+            }).catch(() => {
+                this.total2 = 0
+                this.shareduserlist = []
+          });
+        },
+
+        handleSizeChange1(val) {
+          this.pageSize1 = val;
+          this.fetchShareUsers();
+        },
+
+        handleCurrentChange1(val) {
+          this.currentPage1 = val;
+          this.fetchShareUsers();
+        },
+
+        handleSizeChange2(val) {
+          this.pageSize2 = val;
+          this.fetchSharedUsers();
+        },
+
+        handleCurrentChange2(val) {
+          this.currentPage2 = val;
+          this.fetchSharedUsers();
         },
 
         addShare(){

@@ -58,8 +58,8 @@
     </el-table>
     
     <el-pagination
-      @size-change="fetchData"
-      @current-change="fetchData"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
       :current-page="currentPage"
       :page-sizes="[5, 10, 20]"
       :page-size="pageSize"
@@ -184,7 +184,7 @@ export default {
           uploadDate: '', //当前文件的上传时间
           list:[], //首页用包名得到的列表
           urllist:[], //jar,pom包的下载地址
-          total: 0, //总条数
+          total:  0, //总条数
           curRow: {}, //当前选中行的所有信息
           currentPage: 1, //当前页数
           pageSize: 10, //每页条数
@@ -220,8 +220,10 @@ export default {
     methods: {
         fetchData(){
             mavenApi.getList(this.$router.currentRoute.name,this.currentPage,this.pageSize).then(response =>{
-                //this.total = response.data.total
-                this.list = response.data
+                console.log(this.currentPage)
+                console.log(this.pageSize)
+                this.total = response.data.total
+                this.list = response.data.rows
                 //this.urllist = response.data.urls
             }).catch(() => {
                 this.total = 0
@@ -229,10 +231,26 @@ export default {
           });
         },
 
+        handleSizeChange(val) {
+          this.pageSize = val;
+          if(this.keywords==='') this.fetchData();
+          else this.handleSearch();
+        },
+
+        handleCurrentChange(val) {
+          this.currentPage = val;
+          if(this.keywords==='') this.fetchData();
+          else this.handleSearch();
+        },
+
         handleSearch(){
-          if (this.keywords!=='') {
+          if(this.keywords==='') this.fetchData();
+          else {
+            console.log(this.currentPage)
+            console.log(this.pageSize)
             mavenApi.search(this.$router.currentRoute.name, this.currentPage, this.pageSize, this.keywords).then(response =>{
-                this.list = response.data
+                this.total = response.data.total
+                this.list = response.data.rows
             }).catch(() => {
                 this.total = 0
                 this.list = []

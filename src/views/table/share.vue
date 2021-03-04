@@ -53,8 +53,8 @@
     </el-table>
     
     <el-pagination
-      @size-change="fetchData"
-      @current-change="fetchData"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
       :current-page="currentPage"
       :page-sizes="[5, 10, 20]"
       :page-size="pageSize"
@@ -127,7 +127,7 @@ export default {
           total: 0, //总页数
           curRow: {}, //当前选中行的所有信息
           currentPage: 1, //当前页数
-          pageSize: 10, //每页条数
+          pageSize: 5, //每页条数
           keywords: '', //搜索关键词
           detailVisible: false, //点开某行展示具体内容的弹出框
           packageName: '', //当前点开行的包名
@@ -142,23 +142,38 @@ export default {
     methods: {
         fetchData(){
             shareApi.shareGetList().then(response =>{
-                //this.currentPage,this.pageSize
-                //this.total = response.data.total
-                // let start = (this.currentPage-1)*this.pageSize
-                // let end = this.currentPage*this.pageSize
-                // this.list = response.data.subList(start,end)
-                this.list = response.data
-                //this.urllist = response.data.urls
+                console.log(this.currentPage)
+                console.log(this.pageSize)
+                let start = (this.currentPage-1)*this.pageSize
+                let end = this.currentPage*this.pageSize
+                this.total = response.data.length
+                this.list = response.data.slice(start, end)
             }).catch(() => {
                 this.total = 0
                 this.list = []
           });
         },
 
+        handleSizeChange(val) {
+          this.pageSize = val;
+          if(this.keywords==='') this.fetchData();
+          else this.shareSearch();
+        },
+
+        handleCurrentChange(val) {
+          this.currentPage = val;
+          if(this.keywords==='') this.fetchData();
+          else this.shareSearch();
+        },
+
         shareSearch(){
-          if (this.keywords!=='') {
+          if(this.keywords==='') this.fetchData();
+          else {
             shareApi.shareSearch(this.keywords).then(response =>{
-                this.list = response.data
+                let start = (this.currentPage-1)*this.pageSize
+                let end = this.currentPage*this.pageSize
+                this.total = response.data.length
+                this.list = response.data.slice(start, end)
             }).catch(() => {
                 this.total = 0
                 this.list = []
