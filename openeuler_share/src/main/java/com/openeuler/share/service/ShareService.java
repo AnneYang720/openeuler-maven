@@ -5,6 +5,7 @@ import com.openeuler.share.pojo.ShareInfo;
 import com.openeuler.user.pojo.User;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -52,7 +53,7 @@ public class ShareService {
         shareDao.delete(curInfo.get(0));
     }
 
-    public List<ShareInfo> getShareUsers(int page, int size,String userId) {
+    public Page<ShareInfo> getShareUsers(int page, int size,String userId) {
         Pageable pageable = PageRequest.of(page-1, size);
         return shareDao.findByUserId(userId, pageable);
     }
@@ -61,7 +62,7 @@ public class ShareService {
         return shareDao.findBySharedUserId(userId);
     }
 
-    public List<ShareInfo> getSharedUsers(int page, int size,String userId) {
+    public Page<ShareInfo> getSharedUsers(int page, int size, String userId) {
         Pageable pageable = PageRequest.of(page-1, size);
         return shareDao.findBySharedUserId(userId, pageable);
     }

@@ -6,10 +6,13 @@ import com.openeuler.share.pojo.ShareInfo;
 import com.openeuler.share.pojo.ShareUserInfo;
 import com.openeuler.share.pojo.SharedFileInfo;
 import com.openeuler.share.service.ShareService;
+import com.openeuler.storage.dao.FileDao;
 import com.openeuler.user.pojo.User;
+import entity.PageResult;
 import entity.Result;
 import entity.StatusCode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -78,14 +81,14 @@ public class ShareController {
      */
     @RequestMapping(value="/userlist/{page}/{size}", method = RequestMethod.GET)
     public Result getShareUsers(@PathVariable int page, @PathVariable int size, @RequestHeader(value="X-User-Id") String userId) {
-        List<ShareInfo> usersId = shareService.getShareUsers(page, size, userId);
+        Page<ShareInfo> usersId = shareService.getShareUsers(page, size, userId);
         List<ShareUserInfo> data = new ArrayList<>();
-        for(ShareInfo info : usersId){
+        for(ShareInfo info : usersId.getContent()){
             System.out.println("ShareUserId: "+info.getSharedUserId());
             User tmpUser = userClient.findUserById(info.getSharedUserId());
             data.add(new ShareUserInfo(tmpUser.getId(), tmpUser.getEmail(), tmpUser.getLoginName()));
         }
-        return new Result(true, StatusCode.OK, "列举成功", data);
+        return new Result(true, StatusCode.OK, "列举成功", new PageResult<ShareUserInfo>(usersId.getTotalElements(),data));
     }
 
     /**
@@ -97,14 +100,14 @@ public class ShareController {
      */
     @GetMapping("/shareduserlist/{page}/{size}")
     public Result getSharedUsers(@PathVariable int page, @PathVariable int size, @RequestHeader(value="X-User-Id") String userId) {
-        List<ShareInfo> usersId = shareService.getSharedUsers(page, size, userId);
+        Page<ShareInfo> usersId = shareService.getSharedUsers(page, size, userId);
         List<ShareUserInfo> data = new ArrayList<>();
-        for(ShareInfo info : usersId){
+        for(ShareInfo info : usersId.getContent()){
             System.out.println("UserId: "+info.getUserId());
             User tmpUser = userClient.findUserById(info.getUserId());
             data.add(new ShareUserInfo(tmpUser.getId(), tmpUser.getEmail(), tmpUser.getLoginName()));
         }
-        return new Result(true, StatusCode.OK, "列举成功", data);
+        return new Result(true, StatusCode.OK, "列举成功", new PageResult<ShareUserInfo>(usersId.getTotalElements(),data));
     }
 
     /**

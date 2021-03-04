@@ -10,6 +10,9 @@ import com.openeuler.storage.pojo.FileInfo;
 import com.openeuler.storage.pojo.UrlInfo;
 import com.openeuler.storage.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import util.IdWorker;
@@ -174,17 +177,20 @@ public class S3FileService extends S3ClientService {
     }
 
 
-    public List<FileDao.ArtifactVersionList> getList(String repo, int page, int size, String userId) {
-        return this.fileDao.findVersionsGroupByArtifactAndGroupId(userId, repo, page * size, size);
+    public Page<FileDao.ArtifactVersionList> getList(String repo, int page, int size, String userId) {
+        Pageable pageable = PageRequest.of(page-1, size);
+        return this.fileDao.findVersionsGroupByArtifactAndGroupId(userId, repo, pageable);
     }
 
     public List<FileDao.ArtifactVersionList> getListById(String uerId) {
         return this.fileDao.findVersionsGroupByArtifactAndGroupId(uerId);
     }
 
-    public List<FileDao.ArtifactVersionList> searchList(String repo, int page, int size, String keywords, String userId) {
+    public Page<FileDao.ArtifactVersionList> searchList(String repo, int page, int size, String keywords, String userId) {
+        System.out.println(userId);
         keywords = "%"+keywords+"%";
-        return this.fileDao.searchVersionsGroupByArtifactAndGroupId(userId, repo, keywords,page * size, size);
+        Pageable pageable = PageRequest.of(page-1, size);
+        return this.fileDao.searchVersionsGroupByArtifactAndGroupId(userId, repo, keywords, pageable);
         //return this.fileDao.searchVersionsGroupByArtifactAndGroupId("1353720995084636160", repo, keywords,page * size, size);
     }
 

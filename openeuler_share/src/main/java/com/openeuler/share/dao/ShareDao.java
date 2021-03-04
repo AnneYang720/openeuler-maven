@@ -2,6 +2,7 @@ package com.openeuler.share.dao;
 
 import com.openeuler.share.pojo.ShareInfo;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -16,9 +17,9 @@ public interface ShareDao extends JpaRepository<ShareInfo, String>, JpaSpecifica
 
     List<ShareInfo> findByUserIdAndSharedUserId(String userId,String shareUserId);
 
-    List<ShareInfo> findByUserId(String userId, Pageable pageable);
+    Page<ShareInfo> findByUserId(String userId, Pageable pageable);
 
-    List<ShareInfo> findBySharedUserId(String userId, Pageable pageable);
+    Page<ShareInfo> findBySharedUserId(String userId, Pageable pageable);
 
     List<ShareInfo> findBySharedUserId(String userId);
 

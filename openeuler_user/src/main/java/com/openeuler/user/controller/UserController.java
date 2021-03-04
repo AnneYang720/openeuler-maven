@@ -2,15 +2,12 @@ package com.openeuler.user.controller;
 
 import com.openeuler.user.pojo.User;
 import com.openeuler.user.service.UserService;
-import entity.PageResult;
 import entity.Result;
 import entity.StatusCode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import util.JwtUtil;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

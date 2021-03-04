@@ -29,3 +29,5 @@ zuul:
       path: /share/**
       service-id: openeuler-share
       strip-prefix: false
+ribbon:
+  ReadTimeout: 60000

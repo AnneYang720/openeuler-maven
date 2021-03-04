@@ -3,6 +3,8 @@ package com.openeuler.storage.dao;
 import com.openeuler.storage.pojo.FileInfo;
 import com.openeuler.user.pojo.User;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -39,14 +41,18 @@ public interface FileDao extends JpaRepository<FileInfo, String>, JpaSpecificati
     List<FileInfo> findByUserId(String userId);
 
     @Query(value = "SELECT group_concat(version) AS versionList, count(version) as versionNum, " +
-            "group_concat(id) AS idList, max(update_date) AS updateTime, " +
-            "user_id AS userId, repo, group_id AS groupId, artifact_id AS artifactId, " +
-            "substring_index(group_concat(version), ',', -1) AS latestVersion " +
-            "FROM tb_fileinfo WHERE user_id = :userId AND repo = :repo " +
-            "GROUP BY group_id, artifact_id, user_id, repo" +
-            "LIMIT :size OFFSET :offset", nativeQuery = true)
-    List<ArtifactVersionList> findVersionsGroupByArtifactAndGroupId(@Param("userId") String userId,
-                                                                    @Param("repo") String repo, int offset, int size);
+                "group_concat(id) AS idList, max(update_date) AS updateTime, " +
+                "user_id AS userId, repo, group_id AS groupId, artifact_id AS artifactId, " +
+                "substring_index(group_concat(version), ',', -1) AS latestVersion " +
+                "FROM tb_fileinfo WHERE user_id = :userId AND repo = :repo " +
+                "GROUP BY group_id, artifact_id, user_id, repo ",
+            countQuery = "SELECT count(*) FROM (" +
+                "SELECT group_id, artifact_id " +
+                "FROM tb_fileinfo WHERE user_id = :userId AND repo = :repo " +
+                "GROUP BY group_id, artifact_id, user_id, repo) t",
+            nativeQuery = true)
+    Page<ArtifactVersionList> findVersionsGroupByArtifactAndGroupId(@Param("userId") String userId,
+                                                                    @Param("repo") String repo, Pageable pageable);
 
     @Query(value = "SELECT group_concat(version) AS versionList, count(version) as versionNum, " +
             "group_concat(id) AS idList, max(update_date) AS updateTime, " +
@@ -62,18 +68,23 @@ public interface FileDao extends JpaRepository<FileInfo, String>, JpaSpecificati
             "user_id AS userId, repo, group_id AS groupId, artifact_id AS artifactId, " +
             "substring_index(group_concat(version), ',', -1) AS latestVersion " +
             "FROM tb_fileinfo WHERE user_id = :userId AND repo = :repo " +
-            "AND group_id LIKE :keywords OR artifact_id LIKE :keywords " +
-            "GROUP BY group_id, artifact_id, user_id, repo " +
-            "LIMIT :size OFFSET :offset", nativeQuery = true)
-    List<ArtifactVersionList> searchVersionsGroupByArtifactAndGroupId(@Param("userId") String userId,
-                   @Param("repo") String repo, @Param("keywords") String keywords, int offset, int size);
+            "AND (group_id LIKE :keywords OR artifact_id LIKE :keywords) " +
+            "GROUP BY group_id, artifact_id, user_id, repo ",
+            countQuery = "SELECT count(*) FROM (" +
+                    "SELECT group_id, artifact_id " +
+                    "FROM tb_fileinfo WHERE user_id = :userId AND repo = :repo " +
+                    "AND (group_id LIKE :keywords OR artifact_id LIKE :keywords) " +
+                    "GROUP BY group_id, artifact_id, user_id, repo) t",
+            nativeQuery = true)
+    Page<ArtifactVersionList> searchVersionsGroupByArtifactAndGroupId(@Param("userId") String userId,
+                   @Param("repo") String repo, @Param("keywords") String keywords, Pageable pageable);
 
     @Query(value = "SELECT group_concat(version) AS versionList, count(version) as versionNum, " +
             "group_concat(id) AS idList, max(update_date) AS updateTime, " +
             "user_id AS userId, group_id AS groupId, artifact_id AS artifactId, " +
             "substring_index(group_concat(version), ',', -1) AS latestVersion " +
             "FROM tb_fileinfo WHERE user_id = :userId AND repo = 'release' " +
-            "AND group_id LIKE :keywords OR artifact_id LIKE :keywords " +
+            "AND (group_id LIKE :keywords OR artifact_id LIKE :keywords) " +
             "GROUP BY group_id, artifact_id, user_id, repo ", nativeQuery = true)
     List<ArtifactVersionList> searchVersionsGroupByArtifactAndGroupId(@Param("userId") String userId, @Param("keywords") String keywords);
 

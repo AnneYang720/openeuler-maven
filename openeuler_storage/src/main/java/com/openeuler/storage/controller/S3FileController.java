@@ -3,10 +3,12 @@ package com.openeuler.storage.controller;
 import com.openeuler.storage.dao.FileDao;
 import com.openeuler.storage.pojo.FileInfo;
 import com.openeuler.storage.pojo.UrlInfo;
+import entity.PageResult;
 import entity.Result;
 import entity.StatusCode;
 import com.openeuler.storage.service.S3FileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -44,8 +46,8 @@ public class S3FileController {
      */
     @GetMapping("/{repo}/getlist/{page}/{size}")
     public Result getListPage(@PathVariable String repo, @PathVariable int page, @PathVariable int size, @RequestHeader(value="X-User-Id") String userId) {
-        List<FileDao.ArtifactVersionList> data = s3FileService.getList(repo, page, size, userId);
-        return new Result(true, StatusCode.OK, "列举成功", data);
+        Page<FileDao.ArtifactVersionList> data = s3FileService.getList(repo, page, size, userId);
+        return new Result(true, StatusCode.OK, "列举成功", new PageResult<FileDao.ArtifactVersionList>(data.getTotalElements(),data.getContent()));
     }
 
     /**
@@ -70,8 +72,8 @@ public class S3FileController {
      */
     @PostMapping("/{repo}/search/{page}/{size}")
     public Result searchList(@PathVariable String repo, @PathVariable int page, @PathVariable int size, @RequestBody String keywords, @RequestHeader(value="X-User-Id") String userId) {
-        List<FileDao.ArtifactVersionList> data = s3FileService.searchList(repo, page, size, keywords, userId);
-        return new Result(true, StatusCode.OK, "列举成功", data);
+        Page<FileDao.ArtifactVersionList> data = s3FileService.searchList(repo, page, size, keywords, userId);
+        return new Result(true, StatusCode.OK, "列举成功", new PageResult<FileDao.ArtifactVersionList>(data.getTotalElements(),data.getContent()));
     }
 
     /**
