@@ -2,7 +2,7 @@
   <div class="login-container">
     <el-form autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left" label-width="0px"
       class="card-box login-form">
-      <h3 class="title">Maven私库管理登录</h3>
+      <h3 class="title">Maven私库登录</h3>
       <el-form-item prop="email">
         <span class="svg-container svg-container_login">
           <svg-icon icon-class="user" />
@@ -44,21 +44,13 @@ export default {
         callback()
       }
     }
-    const validatePass = (rule, value, callback) => {
-      if (value.length < 5) {
-        callback(new Error('密码不能小于5位'))
-      } else {
-        callback()
-      }
-    }
     return{
       loginForm: {
-        email: 'admin@gmail.com',
-        password: 'admin'
+        email: '',
+        password: ''
       },
       loginRules: {
-        email: [{ required: true, trigger: 'blur', validator: validateEmail }],
-        password: [{ required: true, trigger: 'blur', validator: validatePass }]
+        email: [{ required: true, trigger: 'blur', validator: validateEmail }]
       },
       loading: false,
       pwdType: 'password'

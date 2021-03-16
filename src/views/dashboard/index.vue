@@ -95,7 +95,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer" style="margin-right:10%">
-        <el-button @click="dialogVisible = false">关 闭</el-button>
+        <el-button @click="closeDialog">关 闭</el-button>
         <el-button type="primary" @click="addShare()">增 加</el-button>
       </span>
     </el-dialog>  
@@ -108,7 +108,6 @@
 <script>
 import { mapGetters } from 'vuex'
 import shareApi from '@/api/share'
-import { isvalidEmail } from '@/utils/validate'
 
 export default {
   name: 'dashboard',
@@ -150,8 +149,8 @@ export default {
 
         fetchShareUsers(){
             shareApi.getShareUsers(this.currentPage1,this.pageSize1).then(response =>{
-                console.log(this.currentPage1)
-                console.log(this.pageSize1)
+                //console.log(this.currentPage1)
+                //console.log(this.pageSize1)
                 this.total1 = response.data.total
                 this.shareuserlist = response.data.rows
             }).catch(() => {
@@ -162,8 +161,8 @@ export default {
 
         fetchSharedUsers(){
             shareApi.getSharedUsers(this.currentPage2,this.pageSize2).then(response =>{
-                console.log(this.currentPage2)
-                console.log(this.pageSize2)
+                //console.log(this.currentPage2)
+                //console.log(this.pageSize2)
                 this.total2 = response.data.total
                 this.shareduserlist = response.data.rows
             }).catch(() => {
@@ -200,6 +199,8 @@ export default {
                   });
                   if(response.flag){//如果成功
                     this.fetchData()
+                    this.dialogVisible = false
+                    this.addUserForm.loginName = ''
                   }
               })
         },
@@ -241,6 +242,14 @@ export default {
           }).catch(() => {
           });
         },
+
+        closeDialog (formName) {
+          this.dialogVisible = false;
+          this.$nextTick(()=>{
+            this.$refs['addUserForm'].resetFields()
+          }
+          )
+        }
     },
     watch: {
       '$route': 'fetchData'
