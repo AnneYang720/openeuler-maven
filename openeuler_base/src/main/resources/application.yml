@@ -29,5 +29,8 @@ zuul:
       path: /share/**
       service-id: openeuler-share
       strip-prefix: false
+    web:
+      path: /**
+      url: http://localhost:9528
 ribbon:
   ReadTimeout: 60000

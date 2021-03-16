@@ -12,6 +12,7 @@ import util.JwtUtil;
 import javax.servlet.http.HttpServletRequest;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PROXY_KEY;
 
 @Component
 public class JWTAuthFilter extends ZuulFilter {
@@ -33,7 +34,7 @@ public class JWTAuthFilter extends ZuulFilter {
      */
     @Override
     public int filterOrder() {
-        return 4;
+        return 10;
     }
 
     /**
@@ -47,9 +48,12 @@ public class JWTAuthFilter extends ZuulFilter {
 
         if ("/user/login".equalsIgnoreCase(request.getRequestURI())){
             return false;
-        }else if("/user/register".equalsIgnoreCase(request.getRequestURI())){
+        } else if("/user/register".equalsIgnoreCase(request.getRequestURI())){
+            return false;
+        } else if("web".equals(requestContext.get(PROXY_KEY))){
             return false;
         }
+
         return true;
     }
 

@@ -84,7 +84,7 @@ public class ShareController {
         Page<ShareInfo> usersId = shareService.getShareUsers(page, size, userId);
         List<ShareUserInfo> data = new ArrayList<>();
         for(ShareInfo info : usersId.getContent()){
-            System.out.println("ShareUserId: "+info.getSharedUserId());
+            //System.out.println("ShareUserId: "+info.getSharedUserId());
             User tmpUser = userClient.findUserById(info.getSharedUserId());
             data.add(new ShareUserInfo(tmpUser.getId(), tmpUser.getEmail(), tmpUser.getLoginName()));
         }
@@ -118,14 +118,19 @@ public class ShareController {
     @PostMapping("/adduser")
     public Result addShareUser(@RequestBody User user, @RequestHeader(value="X-User-Id") String myId) {
         //System.out.println("loginName: "+user.getLoginName());
-        User existUser = userClient.findByLoginName(user);
-        //System.out.println(existUser.getId());
-        if (existUser.getId() != null) {
-            shareService.addShareUser(existUser,myId);
-            return new Result(true, StatusCode.OK, "添加分享成功");
-        } else {
-            return new Result(false, StatusCode.ERROR, "添加失败，用户名不存在");
+        try{
+            User existUser = userClient.findByLoginName(user);
+//            System.out.println(existUser.getId());
+            if (existUser != null) {
+                shareService.addShareUser(existUser,myId);
+                return new Result(true, StatusCode.OK, "添加分享成功");
+            } else {
+                return new Result(false, StatusCode.ERROR, "添加失败，用户名不存在");
+            }
+        }catch (Exception e){
+            return new Result(false, StatusCode.ERROR, e.getMessage());
         }
+
     }
 
     /**
