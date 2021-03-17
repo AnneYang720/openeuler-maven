@@ -116,7 +116,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer" style="margin-right:10%">
-        <el-button @click="dialogVisible = false">关 闭</el-button>
+        <el-button @click="closeDialog">关 闭</el-button>
         <el-button type="primary" @click="handleUpload()">上 传</el-button>
       </span>
     </el-dialog>
@@ -220,8 +220,8 @@ export default {
     methods: {
         fetchData(){
             mavenApi.getList(this.$router.currentRoute.name,this.currentPage,this.pageSize).then(response =>{
-                console.log(this.currentPage)
-                console.log(this.pageSize)
+                //console.log(this.currentPage)
+                //console.log(this.pageSize)
                 this.total = response.data.total
                 this.list = response.data.rows
                 //this.urllist = response.data.urls
@@ -323,7 +323,7 @@ export default {
             type: 'warning'
           }).then(() => {
             //console.log("delete this group")
-            mavenApi.deleteByGroup(this.$router.currentRoute.name,row.groupId,row.artifactId).then(response =>{
+            mavenApi.deleteGroup(this.$router.currentRoute.name,row.groupId,row.artifactId).then(response =>{
               this.$message({
                 message: response.message,
                 type: (response.flag ? 'success':'error')
@@ -451,6 +451,13 @@ export default {
             })
           })
         },
+
+        closeDialog () {
+          this.dialogVisible = false;
+          this.$nextTick(()=>{
+            this.$refs['uploadForm'].resetFields()
+          })
+        }
 
 
 

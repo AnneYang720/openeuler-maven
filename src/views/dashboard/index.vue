@@ -243,12 +243,11 @@ export default {
           });
         },
 
-        closeDialog (formName) {
+        closeDialog () {
           this.dialogVisible = false;
           this.$nextTick(()=>{
             this.$refs['addUserForm'].resetFields()
-          }
-          )
+          })
         }
     },
     watch: {

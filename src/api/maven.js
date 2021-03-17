@@ -9,9 +9,8 @@ export default{
 
     search(repo,page,size,keywords){
         return request({
-            url: `/maven/${repo}/search/${page}/${size}`,//ES6写法
-            method: 'post',
-            data: keywords
+            url: `/maven/${repo}/search/${page}/${size}?q=${keywords}`,//ES6写法
+            method: 'get',
         });
     },
 
@@ -30,10 +29,10 @@ export default{
             data: pojo        })
     },
 
-    deleteByGroup(repo,groupId,artifactId){
+    deleteGroup(repo,groupId,artifactId){
         //console.log("js delete this group")
         return request({
-            url:`/maven/${repo}/${groupId}/${artifactId}`,
+            url:`/maven/${repo}/${groupId}/${artifactId}/`,
             method:'delete'
         })
     },
