@@ -70,9 +70,10 @@ public class S3FileController {
      * @param page
      * @param size
      */
-    @PostMapping("/{repo}/search/{page}/{size}")
-    public Result searchList(@PathVariable String repo, @PathVariable int page, @PathVariable int size, @RequestBody String keywords, @RequestHeader(value="X-User-Id") String userId) {
+    @GetMapping("/{repo}/search/{page}/{size}")
+    public Result searchList(@PathVariable String repo, @PathVariable int page, @PathVariable int size, @RequestParam(name = "q") String keywords, @RequestHeader(value="X-User-Id") String userId) {
         Page<FileDao.ArtifactVersionList> data = s3FileService.searchList(repo, page, size, keywords, userId);
+        System.out.println(data.getTotalElements());
         return new Result(true, StatusCode.OK, "列举成功", new PageResult<FileDao.ArtifactVersionList>(data.getTotalElements(),data.getContent()));
     }
 

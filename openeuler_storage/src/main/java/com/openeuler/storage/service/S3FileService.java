@@ -87,23 +87,20 @@ public class S3FileService extends S3ClientService {
         // Generate the pre-signed URL.
         System.out.println("Generating pre-signed URL.");
         String filename = fileInfo.getArtifactId() + "-" + fileInfo.getVersion()+".";
+        String objectKey = userId+"/"+repo+"/"+fileInfo.getGroupId().replace(".", "/") + "/" + fileInfo.getArtifactId() + "/" + fileInfo.getVersion() + "/" + filename;
 
-        String objectKeyJAR = userId+"/"+repo+"/"+fileInfo.getGroupId().replace(".", "/") + "/" + fileInfo.getArtifactId() + "/" + fileInfo.getVersion() + "/" + filename + fileInfo.getPackaging();
+        String objectKeyJAR = objectKey + fileInfo.getPackaging();
         GeneratePresignedUrlRequest generatePresignedUrlRequestJAR = new GeneratePresignedUrlRequest(getBucketName(), objectKeyJAR)
                 .withMethod(HttpMethod.PUT)
                 .withExpiration(expiration);
         String uploadJARUrl = getClient().generatePresignedUrl(generatePresignedUrlRequestJAR).toString();
 
-        String objectKeyPOM = userId+"/"+repo+"/"+fileInfo.getGroupId().replace(".", "/") + "/" + fileInfo.getArtifactId() + "/" + fileInfo.getVersion() + "/" + filename + "pom";
+        String objectKeyPOM = objectKey + "pom";
         GeneratePresignedUrlRequest generatePresignedUrlRequestPOM = new GeneratePresignedUrlRequest(getBucketName(), objectKeyPOM)
                 .withMethod(HttpMethod.PUT)
                 .withExpiration(expiration);
         String uploadPOMUrl = getClient().generatePresignedUrl(generatePresignedUrlRequestPOM).toString();
 
-//        fileInfo.setFilename(objectKey);
-//        fileInfo.setUrl(getUrl().concat(filename));
-//        fileDao.save(fileInfo);
-//        return uploadUrl;
         return new String[] {uploadJARUrl,uploadPOMUrl};
     }
 

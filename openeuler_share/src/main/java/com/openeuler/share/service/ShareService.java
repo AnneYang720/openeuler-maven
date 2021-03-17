@@ -47,7 +47,7 @@ public class ShareService {
         shareDao.delete(curInfo.get(0));
     }
 
-    public void quitShare(String myId,String userId) {
+    public void quitShare(String userId,String myId) {
         List<ShareInfo> curInfo = shareDao.findByUserIdAndSharedUserId(userId, myId);
         if(curInfo.size()!=1){ throw new RuntimeException("无法定位用户"); }
         shareDao.delete(curInfo.get(0));
