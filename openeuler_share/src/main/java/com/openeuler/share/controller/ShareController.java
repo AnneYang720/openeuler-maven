@@ -56,8 +56,8 @@ public class ShareController {
      *
      * @param keywords
      */
-    @PostMapping("/search")
-    public Result shareSearch(@RequestBody String keywords, @RequestHeader(value="X-User-Id") String userId) {
+    @GetMapping("/search")
+    public Result shareSearch(@RequestParam(name = "q") String keywords, @RequestHeader(value="X-User-Id") String userId) {
         List<ShareInfo> usersId = shareService.getSharedUsers(userId);
         List<SharedFileInfo> data = new ArrayList<>();
         for(ShareInfo info : usersId){
@@ -122,7 +122,8 @@ public class ShareController {
             User existUser = userClient.findByLoginName(user);
 //            System.out.println(existUser.getId());
             if (existUser != null) {
-                shareService.addShareUser(existUser,myId);
+                String repoUserId = userClient.addShareUser();
+                shareService.addShareUser(existUser,myId, repoUserId);
                 return new Result(true, StatusCode.OK, "添加分享成功");
             } else {
                 return new Result(false, StatusCode.ERROR, "添加失败，用户名不存在");
@@ -140,7 +141,8 @@ public class ShareController {
      */
     @RequestMapping(value ="/delete/{userId}", method = RequestMethod.DELETE)
     public Result deleteShare(@PathVariable String userId, @RequestHeader(value="X-User-Id") String myId) {
-        shareService.deleteShare(myId, userId);
+        String repoUserId = shareService.deleteShare(myId, userId);
+        userClient.deleteRepoUser(repoUserId);
         return new Result(true, StatusCode.OK, "用户删除成功");
     }
 
@@ -151,7 +153,8 @@ public class ShareController {
      */
     @RequestMapping(value ="/quit/{userId}", method = RequestMethod.DELETE)
     public Result quitShare(@PathVariable String userId, @RequestHeader(value="X-User-Id") String myId) {
-        shareService.quitShare(userId, myId);
+        String repoUserId = shareService.quitShare(userId, myId);
+        userClient.deleteRepoUser(repoUserId);
         return new Result(true, StatusCode.OK, "退出分享成功");
     }
 }

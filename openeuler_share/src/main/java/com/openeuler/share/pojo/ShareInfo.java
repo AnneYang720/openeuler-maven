@@ -16,6 +16,8 @@ public class ShareInfo implements Serializable {
 
     private String sharedUserId;
 
+    private String repoUserId;
+
     public ShareInfo() {
     }
 
@@ -41,5 +43,13 @@ public class ShareInfo implements Serializable {
 
     public void setSharedUserId(String sharedUserId) {
         this.sharedUserId = sharedUserId;
+    }
+
+    public String getRepoUserId() {
+        return repoUserId;
+    }
+
+    public void setRepoUserId(String repoUserId) {
+        this.repoUserId = repoUserId;
     }
 }

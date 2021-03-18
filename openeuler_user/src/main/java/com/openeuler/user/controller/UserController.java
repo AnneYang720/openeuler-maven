@@ -128,6 +128,24 @@ public class UserController {
     }
 
     /**
+     * 当前登录用户给本人release仓库增加用户名和密码
+     * @return
+     */
+    @RequestMapping(value = "/addshare", method = RequestMethod.POST)
+    public String addShareUser(@RequestHeader(value="X-User-Id") String userId) {
+        return userService.addRepoUser( userId,"release");
+    }
+
+    /**
+     * 当前登录用户给本人release仓库删除一项用户名和密码
+     * @return
+     */
+    @RequestMapping(value = "/deleterepouser/id", method = RequestMethod.DELETE)
+    public void deleteRepoUser(@RequestBody String id) {
+        userService.deleteRepoUser(id);
+    }
+
+    /**
      * 根据UserName查询
      *
      * @param user

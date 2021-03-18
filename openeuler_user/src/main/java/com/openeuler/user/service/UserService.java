@@ -1,6 +1,8 @@
 package com.openeuler.user.service;
 
+import com.openeuler.user.dao.RepoUserDao;
 import com.openeuler.user.dao.UserDao;
+import com.openeuler.user.pojo.RepoUser;
 import com.openeuler.user.pojo.User;
 import entity.Result;
 import entity.StatusCode;
@@ -31,7 +33,11 @@ public class UserService {
     private UserDao userDao;
 
     @Autowired
+    private RepoUserDao repoUserDao;
+
+    @Autowired
     private IdWorker idWorker;
+
     @Autowired
     private BCryptPasswordEncoder encoder;
     @Autowired
@@ -144,9 +150,26 @@ public class UserService {
         user.setId(idWorker.nextId() + "");
         user.setPassword(encoder.encode(user.getPassword()));
         user.setRegDate(new Date());
+        addRepoUser(user.getId(),"release");
+        addRepoUser(user.getId(),"snapshot");
         userDao.save(user);
     }
 
+    public String addRepoUser(String ownerId, String repo){
+        RepoUser repoUser = new RepoUser();
+        repoUser.setId(idWorker.nextId() + "");
+        repoUser.setOwnerId(ownerId);
+        repoUser.setRepo(repo);
+        repoUser.setUser_name(Base64.getEncoder().encodeToString((idWorker.nextId() + "").getBytes()));
+        repoUser.setPassword(Base64.getEncoder().encodeToString((idWorker.nextId() + "").getBytes()));
+        repoUserDao.save(repoUser);
+        return repoUser.getId();
+    }
+
+    public void deleteRepoUser(String id){
+        RepoUser repoUser = repoUserDao.findById(id).get();
+        repoUserDao.delete(repoUser);
+    }
     /**
      * 修改
      *

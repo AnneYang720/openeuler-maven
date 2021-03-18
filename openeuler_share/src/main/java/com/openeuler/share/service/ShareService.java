@@ -3,7 +3,6 @@ package com.openeuler.share.service;
 import com.openeuler.share.dao.ShareDao;
 import com.openeuler.share.pojo.ShareInfo;
 import com.openeuler.user.pojo.User;
-import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,26 +30,30 @@ public class ShareService {
      *
      * @param user
      */
-    public void addShareUser(User user, String myId) {
+    public void addShareUser(User user, String myId, String repoUserId) {
         List<ShareInfo> curInfo = shareDao.findByUserIdAndSharedUserId(myId, user.getId());
         if(curInfo.size()!=0){ throw new RuntimeException("用户已经存在"); }
+
         ShareInfo shareinfo = new ShareInfo();
         shareinfo.setId(idWorker.nextId() + "");
         shareinfo.setUserId(myId);
         shareinfo.setSharedUserId(user.getId());
+        shareinfo.setRepoUserId(repoUserId);
         shareDao.save(shareinfo);
     }
 
-    public void deleteShare(String myId,String userId) {
+    public String deleteShare(String myId,String userId) {
         List<ShareInfo> curInfo = shareDao.findByUserIdAndSharedUserId(myId, userId);
         if(curInfo.size()!=1){ throw new RuntimeException("无法定位用户"); }
         shareDao.delete(curInfo.get(0));
+        return curInfo.get(0).getRepoUserId();
     }
 
-    public void quitShare(String userId,String myId) {
+    public String quitShare(String userId,String myId) {
         List<ShareInfo> curInfo = shareDao.findByUserIdAndSharedUserId(userId, myId);
         if(curInfo.size()!=1){ throw new RuntimeException("无法定位用户"); }
         shareDao.delete(curInfo.get(0));
+        return curInfo.get(0).getRepoUserId();
     }
 
     public Page<ShareInfo> getShareUsers(int page, int size,String userId) {

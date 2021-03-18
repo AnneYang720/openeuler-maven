@@ -11,4 +11,10 @@ public interface UserClient {
 
     @RequestMapping( value ="/user/find/id", method = RequestMethod.POST)
     User findUserById(@RequestBody String id);
+
+    @RequestMapping( value ="/user/addshare", method = RequestMethod.POST)
+    String addShareUser();
+
+    @RequestMapping( value ="/user/deleterepouser/id", method = RequestMethod.DELETE)
+    String deleteRepoUser(@RequestBody String id);
 }
