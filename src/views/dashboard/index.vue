@@ -4,7 +4,7 @@
   <el-col :span="20">
 
     <span style="color:blue;font-size:20px;font-weight:bold;margin-left:5%"> 我分享的 </span>
-    <el-button @click="dialogVisible = true" type="primary" style="margin-left:5%" plain>增加用户</el-button>
+    <el-button @click="openDialog" type="primary" style="margin-left:5%" plain>增加用户</el-button>
     <el-table
       :data="shareuserlist"
       :row-style="{height:0+'px'}"
@@ -199,7 +199,7 @@ export default {
                   });
                   if(response.flag){//如果成功
                     this.fetchData()
-                    this.dialogVisible = false
+                    this.closeDialog()
                     this.addUserForm.loginName = ''
                   }
               })
@@ -245,6 +245,10 @@ export default {
 
         closeDialog () {
           this.dialogVisible = false;
+        },
+
+        openDialog () {
+          this.dialogVisible = true;
           this.$nextTick(()=>{
             this.$refs['addUserForm'].resetFields()
           })

@@ -6,7 +6,7 @@
         <el-input v-model="keywords"></el-input>
       </el-form-item>
       <el-button @click="handleSearch()" type="primary" plain>搜索</el-button>
-      <el-button @click="dialogVisible = true" type="primary" style="margin-right:5%" plain>新增</el-button>
+      <el-button @click="openDialog" type="primary" style="margin-right:5%" plain>新增</el-button>
     </el-form>
 
     <el-table
@@ -93,7 +93,6 @@
             ref="uploadJAR"
             :action="uploadJARUrl"
             :multiple="false"
-            accept=".jar"
             :auto-upload="false"
             :show-file-list="true"
             :file-list="JARfileList"
@@ -106,7 +105,7 @@
             ref="uploadPOM"
             :action="uploadPOMUrl"
             :multiple="false"
-            accept=".xml"
+            accept=".pom,.xml"
             :auto-upload="false"
             :show-file-list="true"
             :file-list="POMfileList"
@@ -313,7 +312,7 @@ export default {
               }
             })
           }
-          this.dialogVisible = false // 关闭窗口
+          this.closeDialog() // 关闭窗口
         },
 
         handleDel(row){
@@ -376,9 +375,9 @@ export default {
             this.$message.error('jar文件必须上传')
             return false
           }
-          const fileType = this.JARfileList[0].name.substring(this.JARfileList[0].name.lastIndexOf('.'))
-          if (fileType.toLowerCase() != '.jar') {
-            this.$message.error('文件必须为jar类型')
+          const fileType = this.JARfileList[0].name.substring(this.JARfileList[0].name.lastIndexOf('.')+1)
+          if (fileType.toLowerCase() != this.uploadForm.packaging) {
+            this.$message.error('文件类型与packaging不符')
             return false
           }
           return true
@@ -390,7 +389,7 @@ export default {
             return false
           }
           const fileType = this.POMfileList[0].name.substring(this.POMfileList[0].name.lastIndexOf('.'))
-          if (fileType.toLowerCase() != '.xml') {
+          if (fileType.toLowerCase() != '.pom' && fileType.toLowerCase() != '.xml') {
             this.$message.error('文件必须为pom类型')
             return false
           }
@@ -454,8 +453,14 @@ export default {
 
         closeDialog () {
           this.dialogVisible = false;
+        },
+
+        openDialog () {
+          this.dialogVisible = true;
           this.$nextTick(()=>{
             this.$refs['uploadForm'].resetFields()
+            this.JARfileList = []
+            this.POMfileList = []
           })
         }
 

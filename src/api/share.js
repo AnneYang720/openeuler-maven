@@ -8,9 +8,8 @@ export default{
     },
     shareSearch(keywords){
         return request({
-            url: `/share/search`,//ES6写法
-            method: 'post',
-            data: keywords
+            url: `/share/search?q=${keywords}`,//ES6写法
+            method: 'get'
         });
     },
     getShareUsers(page,size){
