@@ -6,7 +6,8 @@
         <el-input v-model="keywords"></el-input>
       </el-form-item>
       <el-button @click="handleSearch()" type="primary" plain>搜索</el-button>
-      <el-button @click="openDialog" type="primary" style="margin-right:5%" plain>新增</el-button>
+      <el-button @click="openDialog" type="primary" plain>新增</el-button>
+      <el-button @click="openRepoDialog()" type="primary" style="margin-right:5%" plain>配置</el-button>
     </el-form>
 
     <el-table
@@ -168,11 +169,26 @@
     </div>
     </el-dialog>
 
+    <!-- 弹出窗口 -->
+    <el-dialog
+      :title="repoTitle"
+      :visible.sync="repoVisible"
+      width="45%"
+      >
+
+      <div>
+      <div style="line-height:40px;margin-left:5%"> <span>仓库地址</span><span style="color:black;margin-left:27px">{{repoDir}}</span> </div>
+      <div style="line-height:40px;margin-left:5%"> <span>用户名</span><span style="color:black;margin-left:40.5px">{{repoUserName}}</span> </div>
+      <div style="line-height:40px;margin-left:5%"> <span>密码</span><span style="color:black;margin-left:54px">{{repoPassword}}</span> </div>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 <script>
 
 import mavenApi from '@/api/maven'
+import {getRepoUserInfo} from '@/api/login'
 import { mapGetters } from 'vuex'
 import axios from 'axios'
 import {pFileReader} from '@/utils/filereader'
@@ -188,8 +204,12 @@ export default {
           currentPage: 1, //当前页数
           pageSize: 10, //每页条数
           keywords: '', //搜索关键词
+          repoDir:'',
+          repoUserName:'',
+          repoPassword:'',
           dialogVisible: false, //新建包的弹出框
           detailVisible: false, //点开某行展示具体内容的弹出框
+          repoVisible: false, //repo的用户名和密码
           saveFlag:true, //两个文件通过url直接上传是否成功
           JARfileList: [], //用户上传的jar文件
           POMfileList: [], //用户上传的pom文件
@@ -197,6 +217,7 @@ export default {
           uploadPOMUrl: '', //后端返回的pom上传url
           packageName: '', //当前点开行的包名
           chosenVersion: '', //当前选中的版本号
+          repoTitle: '仓库配置',
           vList: [], //记录某一行的versionList
           uploadForm: {
             groupId: '',
@@ -223,10 +244,24 @@ export default {
                 //console.log(this.pageSize)
                 this.total = response.data.total
                 this.list = response.data.rows
+                
                 //this.urllist = response.data.urls
             }).catch(() => {
                 this.total = 0
                 this.list = []
+          });
+        },
+
+        openRepoDialog(){
+          getRepoUserInfo(this.$router.currentRoute.name).then(response =>{
+            this.repoDir = response.data.repoDir
+            this.repoUserName = response.data.user_name
+            this.repoPassword = response.data.password
+            this.repoVisible = true
+          }).catch(() => {
+                this.repoDir = ''
+                this.repoUserName = ''
+                this.repoPassword = ''
           });
         },
 
@@ -245,8 +280,8 @@ export default {
         handleSearch(){
           if(this.keywords==='') this.fetchData();
           else {
-            console.log(this.currentPage)
-            console.log(this.pageSize)
+            //console.log(this.currentPage)
+            //console.log(this.pageSize)
             mavenApi.search(this.$router.currentRoute.name, this.currentPage, this.pageSize, this.keywords).then(response =>{
                 this.total = response.data.total
                 this.list = response.data.rows
@@ -452,11 +487,11 @@ export default {
         },
 
         closeDialog () {
-          this.dialogVisible = false;
+          this.dialogVisible = false
         },
 
         openDialog () {
-          this.dialogVisible = true;
+          this.dialogVisible = true
           this.$nextTick(()=>{
             this.$refs['uploadForm'].resetFields()
             this.JARfileList = []
@@ -465,6 +500,7 @@ export default {
         }
 
 
+        
 
 
 

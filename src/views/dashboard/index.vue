@@ -61,11 +61,17 @@
         label="用户邮箱">
       </el-table-column>
       <el-table-column
-        fixed="right"
         label="操作"
         width="100">
         <template slot-scope="scope">
           <el-button @click.native.stop="quitShare(scope.row)" type="text" size="small">退出</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="操作"
+        width="100">
+        <template slot-scope="scope">
+          <el-button @click.native.stop="openRepoDialog(scope.row)" type="text" size="small">配置</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -99,6 +105,20 @@
         <el-button type="primary" @click="addShare()">增 加</el-button>
       </span>
     </el-dialog>  
+
+    <!-- 弹出窗口 -->
+    <el-dialog
+      :title="repoTitle"
+      :visible.sync="repoVisible"
+      width="45%"
+      >
+
+      <div>
+      <div style="line-height:40px;margin-left:5%"> <span>仓库地址</span><span style="color:black;margin-left:27px">{{repoDir}}</span> </div>
+      <div style="line-height:40px;margin-left:5%"> <span>用户名</span><span style="color:black;margin-left:40.5px">{{repoUserName}}</span> </div>
+      <div style="line-height:40px;margin-left:5%"> <span>密码</span><span style="color:black;margin-left:54px">{{repoPassword}}</span> </div>
+      </div>
+    </el-dialog>
   
 
 </el-row>
@@ -129,6 +149,11 @@ export default {
           currentPage2: 1, //当前页数
           pageSize2: 5, //每页条数
           dialogVisible: false, //增加被分享用户的弹出框
+          repoVisible:false,
+          repoTitle: '仓库配置',
+          repoDir:'',
+          repoUserName:'',
+          repoPassword:'',
           addUserForm: {
             loginName: ''
           },
@@ -168,6 +193,19 @@ export default {
             }).catch(() => {
                 this.total2 = 0
                 this.shareduserlist = []
+          });
+        },
+
+        openRepoDialog(row){
+          shareApi.getRepoUserInfo(row.userId).then(response =>{
+            this.repoDir = response.data.repoDir
+            this.repoUserName = response.data.user_name
+            this.repoPassword = response.data.password
+            this.repoVisible = true
+          }).catch(() => {
+                this.repoDir = ''
+                this.repoUserName = ''
+                this.repoPassword = ''
           });
         },
 

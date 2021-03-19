@@ -42,5 +42,11 @@ export default{
             url:`/share/quit/${userId}`,
             method:'delete'
         })
+    },
+    getRepoUserInfo(userId){
+        return request({
+            url:`/share/getrepouserinfo/${userId}`,
+            method:'get'
+        })
     }
 } 

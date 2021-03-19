@@ -34,6 +34,14 @@ export function register(pojo){
   })
 }
 
+export function getRepoUserInfo(repo){
+  return request({
+      url: `/user/${repo}/getrepouserinfo`,//ES6写法
+      method: 'get'
+  });
+}
+
+
 // export function getInfoById(userId) {
 //   return request({
 //     url: `/user/${userId}`,

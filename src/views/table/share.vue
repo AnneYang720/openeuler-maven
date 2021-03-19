@@ -75,7 +75,7 @@
       <div>
       <div style="line-height:40px;margin-left:5%"> <span>上传用户</span><span style="color:black;margin-left:27px">{{currUser}}</span> </div>
       <div style="line-height:40px;margin-left:5%"> <span>上传时间</span><span style="color:black;margin-left:27px">{{uploadDate}}</span> </div>
-      
+
       <div style="line-height:40px;margin-left:5%"> 版本
       <el-select v-model="chosenVersion" @change="urlChange" style="margin-left:50px">
         <el-option v-for="item in vList" :label="item" :key="item" :value="item"/>
@@ -109,6 +109,7 @@
 
     </div>
     </el-dialog>
+
 
   </div>
 </template>
