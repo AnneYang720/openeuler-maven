@@ -12,9 +12,6 @@ public interface UserClient {
     @RequestMapping(value = "/user/find/loginname", method = RequestMethod.POST)
     User findByLoginName(@RequestBody User user);
 
-    @RequestMapping(value = "/user/find/loginname/bystring", method = RequestMethod.POST)
-    User findByLoginNameByString(@RequestBody String userName);
-
     @RequestMapping( value ="/user/find/id", method = RequestMethod.POST)
     User findUserById(@RequestBody String id);
 

@@ -23,8 +23,4 @@ public class StorageApplication {
         return new IdWorker(2, 1);
     }
 
-    @Bean
-    public JwtUtil jwtUtil() {
-        return new JwtUtil();
-    }
 }

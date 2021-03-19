@@ -18,8 +18,4 @@ public class FileUtils {
         return convertedFile;
     }
 
-    public static String generateFileName(MultipartFile multipartFile) {
-        return new Date().getTime() + "-" + Objects.requireNonNull(multipartFile.getOriginalFilename()).replace(" ", "_");
-    }
-
 }

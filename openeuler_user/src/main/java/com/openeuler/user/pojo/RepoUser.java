@@ -16,13 +16,13 @@ public class RepoUser implements Serializable{
     @Id
     private String id;//ID
     @NotNull
-    private String ownerId;//登录名
+    private String ownerId;//库创建者userId
     @NotNull
-    private String repoDir;//E-Mail
+    private String repoDir;//库url地址
     @NotNull
-    private String user_name;//密码
+    private String user_name;//认证该库的用户名
     @NotNull
-    private String password;//密码
+    private String password;//认证该库的密码
 
     public RepoUser(String id, @NotNull String ownerId, @NotNull String repoDir, @NotNull String user_name, @NotNull String password) {
         this.id = id;

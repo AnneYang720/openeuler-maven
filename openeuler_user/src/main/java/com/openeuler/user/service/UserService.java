@@ -5,24 +5,17 @@ import com.openeuler.user.dao.UserDao;
 import com.openeuler.user.pojo.RepoUser;
 import com.openeuler.user.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import util.IdWorker;
-import util.JwtUtil;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.*;
 
 /**
- * 服务层
+ * 用户微服务的服务层
  *
- * @author Administrator
+ * @author AnneY
  */
 @Service
 public class UserService {
@@ -38,35 +31,9 @@ public class UserService {
 
     @Autowired
     private BCryptPasswordEncoder encoder;
-    @Autowired
-    private JwtUtil jwtUtil;
-    @Autowired
-    private HttpServletRequest request;
 
     private String url = "https://openeuler70-1255566273.cos.ap-beijing.myqcloud.com/";
 
-    /**
-     * 鉴定管理员身份
-     *
-     * @return
-     */
-    public void adminAuthentication() {
-        String token = (String) request.getAttribute("claims_admin");
-        //System.out.println("token = " + token);
-        if (token == null || "".equals(token)) {
-            throw new RuntimeException("权限不足");
-        }
-    }
-
-    /**
-     * 查询全部列表
-     *
-     * @return
-     */
-    public List<User> findAll() {
-        adminAuthentication();
-        return userDao.findAll();
-    }
 
     /**
      * 检查用户的邮箱或用户名是否被注册
@@ -78,17 +45,12 @@ public class UserService {
         return userDao.findByLoginNameOrEmail(user.getLoginName(), user.getEmail());
     }
 
+
     /**
      * 获得当前用户信息
      *
      */
     public User getCurInfo(String userId) {
-//        String token = (String) request.getAttribute("claims_user");
-//        System.out.println("token = " + token);
-//        if (token == null || "".equals(token)) {
-//            throw new RuntimeException("登录超时");
-//        }
-//        String id = (String) request.getAttribute("user_id");
         User currUser = userDao.findById(userId).get();
         currUser.setId("");
         currUser.setPassword("");
@@ -97,19 +59,7 @@ public class UserService {
 
 
     /**
-     * 条件查询
-     *
-     * @param whereMap
-     * @return
-     */
-    public List<User> findSearch(Map whereMap) {
-        adminAuthentication();
-        Specification<User> specification = createSpecification(whereMap);
-        return userDao.findAll(specification);
-    }
-
-    /**
-     * 根据ID查询实体
+     * 根据UserId查询User实体
      *
      * @param id
      * @return
@@ -118,8 +68,9 @@ public class UserService {
         return userDao.findById(id).get();
     }
 
+
     /**
-     * 根据LoginName查询实体
+     * 根据用户名LoginName查询User实体
      *
      * @param loginName
      * @return
@@ -143,6 +94,11 @@ public class UserService {
         userDao.save(user);
     }
 
+
+    /**
+     * 增加一条RepoUser记录
+     *
+     */
     public String addRepoUser(String ownerId, String repo){
         RepoUser repoUser = new RepoUser();
         repoUser.setId(idWorker.nextId() + "");
@@ -154,18 +110,29 @@ public class UserService {
         return repoUser.getId();
     }
 
+
+    /**
+     * 删除一条RepoUser记录
+     *
+     */
     public void deleteRepoUser(String id){
         RepoUser repoUser = repoUserDao.findById(id).get();
         repoUserDao.delete(repoUser);
     }
 
+
+    /**
+     * 获得一条RepoUser记录
+     *
+     */
     public RepoUser getRepoInfo(String id){
         RepoUser repoUser = repoUserDao.findById(id).get();
         return repoUser;
     }
 
+
     /**
-     * 修改
+     * 用户修改个人信息
      *
      * @param user
      */
@@ -175,18 +142,6 @@ public class UserService {
         userDao.save(oriUser);
     }
 
-
-    /**
-     * 管理员修改用户信息
-     *
-     * @param user
-     */
-    public void updateById(User user, String id) {
-        adminAuthentication();
-        User oriUser = mergeUserInfo(user, id);
-        oriUser.setUpdateDate(new Date());
-        userDao.save(oriUser);
-    }
 
     /**
      * 修改用户信息合并信息
@@ -217,59 +172,9 @@ public class UserService {
         return oriUser;
     }
 
-    /**
-     * 删除
-     *
-     * @param id
-     */
-    public void deleteById(String id) {
-        adminAuthentication();
-        userDao.deleteById(id);
-    }
 
     /**
-     * 动态条件构建
-     *
-     * @param searchMap
-     * @return
-     */
-    private Specification<User> createSpecification(Map searchMap) {
-
-        return new Specification<User>() {
-
-            @Override
-            public Predicate toPredicate(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                List<Predicate> predicateList = new ArrayList<Predicate>();
-                // ID
-                if (searchMap.get("id") != null && !"".equals(searchMap.get("id"))) {
-                    predicateList.add(cb.like(root.get("id").as(String.class), "%" + (String) searchMap.get("id") + "%"));
-                }
-                // 登录名
-                if (searchMap.get("loginname") != null && !"".equals(searchMap.get("loginname"))) {
-                    predicateList.add(cb.like(root.get("loginname").as(String.class), "%" + (String) searchMap.get("loginname") + "%"));
-                }
-                // 密码
-                if (searchMap.get("password") != null && !"".equals(searchMap.get("password"))) {
-                    predicateList.add(cb.like(root.get("password").as(String.class), "%" + (String) searchMap.get("password") + "%"));
-                }
-                // 昵称
-                if (searchMap.get("nickname") != null && !"".equals(searchMap.get("nickname"))) {
-                    predicateList.add(cb.like(root.get("nickname").as(String.class), "%" + (String) searchMap.get("nickname") + "%"));
-                }
-                // E-Mail
-                if (searchMap.get("email") != null && !"".equals(searchMap.get("email"))) {
-                    predicateList.add(cb.like(root.get("email").as(String.class), "%" + (String) searchMap.get("email") + "%"));
-                }
-
-                return cb.and(predicateList.toArray(new Predicate[predicateList.size()]));
-
-            }
-        };
-
-    }
-
-    /**
-     * 登陆
+     * 登录
      *
      * @param user
      */

@@ -17,18 +17,10 @@ import java.util.List;
 /**
  * 数据访问接口
  *
- * @author Administrator
+ * @author AnneY
  */
 
 public interface FileDao extends JpaRepository<FileInfo, String>, JpaSpecificationExecutor<FileInfo> {
-    /**
-     * 查询是否存在此条数据
-     *
-     * @param userId
-     * @param id
-     * @return
-     */
-    public FileInfo findByUserIdAndId(String userId, String id);
 
     List<FileInfo> findByUserIdAndRepoAndGroupIdAndArtifactIdAndVersion(
             String userId,String repo,String groupId,String artifactId,String version);
@@ -36,9 +28,6 @@ public interface FileDao extends JpaRepository<FileInfo, String>, JpaSpecificati
     List<FileInfo> findByUserIdAndRepoAndGroupIdAndArtifactId(
             String userId,String repo,String groupId,String artifactId);
 
-
-
-    List<FileInfo> findByUserId(String userId);
 
     @Query(value = "SELECT group_concat(version) AS versionList, count(version) as versionNum, " +
                 "group_concat(id) AS idList, max(update_date) AS updateTime, " +
@@ -87,8 +76,6 @@ public interface FileDao extends JpaRepository<FileInfo, String>, JpaSpecificati
             "AND (group_id LIKE :keywords OR artifact_id LIKE :keywords) " +
             "GROUP BY group_id, artifact_id, user_id, repo ", nativeQuery = true)
     List<ArtifactVersionList> searchVersionsGroupByArtifactAndGroupId(@Param("userId") String userId, @Param("keywords") String keywords);
-
-
 
 
     public static interface ArtifactVersionList {

@@ -9,8 +9,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 实体类
- * @author Administrator
+ * 用户实体类
+ * @author AnneY
  *
  */
 @Entity
@@ -20,7 +20,7 @@ public class User implements Serializable {
     @Id
     private String id;//ID
     @NotNull
-    private String loginName;//登录名
+    private String loginName;//用户名
     @NotNull
     private String email;//E-Mail
     @NotNull
@@ -28,8 +28,8 @@ public class User implements Serializable {
     private java.util.Date regDate;//注册日期
     private java.util.Date updateDate;//修改日期
     private java.util.Date lastDate;//最后登陆日期
-    private String repoUserReleaseId;
-    private String repoUserSnapshotId;
+    private String repoUserReleaseId;//本人Release库认证信息Id
+    private String repoUserSnapshotId;//本人Snapshot库认证信息Id
 
 
     public String getId() {

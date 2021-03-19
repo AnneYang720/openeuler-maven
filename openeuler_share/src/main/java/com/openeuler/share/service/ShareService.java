@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import util.IdWorker;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Service
@@ -21,13 +20,11 @@ public class ShareService {
     @Autowired
     private IdWorker idWorker;
 
-    @Autowired
-    private HttpServletRequest request;
-
     /**
-     * 新增分享用户
+     * 判断分享关系是否存在
      *
      * @param user
+     * @param myId
      */
     public boolean ifExist(User user, String myId) {
         List<ShareInfo> curInfo = shareDao.findByUserIdAndSharedUserId(myId, user.getId());
@@ -36,6 +33,7 @@ public class ShareService {
         }
         return false;
     }
+
 
     /**
      * 新增分享用户
@@ -54,6 +52,13 @@ public class ShareService {
         shareDao.save(shareinfo);
     }
 
+
+    /**
+     * 删除对某用户的分享
+     *
+     * @param myId
+     * @param userId
+     */
     public String deleteShare(String myId,String userId) {
         List<ShareInfo> curInfo = shareDao.findByUserIdAndSharedUserId(myId, userId);
         if(curInfo.size()!=1){ throw new RuntimeException("无法定位用户"); }
@@ -61,6 +66,13 @@ public class ShareService {
         return curInfo.get(0).getRepoUserId();
     }
 
+
+    /**
+     * 退出某用户对自己的分享
+     *
+     * @param userId
+     * @param myId
+     */
     public String quitShare(String userId,String myId) {
         List<ShareInfo> curInfo = shareDao.findByUserIdAndSharedUserId(userId, myId);
         if(curInfo.size()!=1){ throw new RuntimeException("无法定位用户"); }
@@ -68,20 +80,50 @@ public class ShareService {
         return curInfo.get(0).getRepoUserId();
     }
 
-    public Page<ShareInfo> getShareUsers(int page, int size,String userId) {
+
+    /**
+     * 列举该用户分享的用户信息
+     * 带分页，从第 page 页开始的 size 个
+     *
+     * @param page
+     * @param size
+     */
+    public Page<ShareInfo> getShareUsers(int page, int size, String userId) {
         Pageable pageable = PageRequest.of(page-1, size);
         return shareDao.findByUserId(userId, pageable);
     }
 
-    public List<ShareInfo> getSharedUsers(String userId) {
-        return shareDao.findBySharedUserId(userId);
-    }
 
+    /**
+     * 列举分享给该用户的用户信息
+     * 带分页，从第 page 页开始的 size 个
+     *
+     * @param page
+     * @param size
+     * @param userId
+     */
     public Page<ShareInfo> getSharedUsers(int page, int size, String userId) {
         Pageable pageable = PageRequest.of(page-1, size);
         return shareDao.findBySharedUserId(userId, pageable);
     }
 
+
+    /**
+     * 列举分享给该用户的用户信息
+     *
+     * @param userId
+     */
+    public List<ShareInfo> getSharedUsers(String userId) {
+        return shareDao.findBySharedUserId(userId);
+    }
+
+
+    /**
+     * 获得该分享关系对应的RepoUserId
+     *
+     * @param userId
+     * @param myId
+     */
     public String getRepoUserId(String userId,String myId){
         List<ShareInfo> curInfo = shareDao.findByUserIdAndSharedUserId(userId, myId);
         if(curInfo.size()!=1){ throw new RuntimeException("无法定位用户"); }

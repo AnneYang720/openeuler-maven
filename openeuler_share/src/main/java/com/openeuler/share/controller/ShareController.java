@@ -6,7 +6,6 @@ import com.openeuler.share.pojo.ShareInfo;
 import com.openeuler.share.pojo.ShareUserInfo;
 import com.openeuler.share.pojo.SharedFileInfo;
 import com.openeuler.share.service.ShareService;
-import com.openeuler.storage.dao.FileDao;
 import com.openeuler.user.pojo.User;
 import entity.PageResult;
 import entity.Result;
@@ -73,7 +72,7 @@ public class ShareController {
     }
 
     /**
-     * 列举分享的用户信息
+     * 列举该用户分享的用户信息
      * 带分页，从第 page 页开始的 size 个
      *
      * @param page
@@ -92,7 +91,7 @@ public class ShareController {
     }
 
     /**
-     * 列举被分享的用户信息
+     * 列举分享给该用户的用户信息
      * 带分页，从第 page 页开始的 size 个
      *
      * @param page
@@ -141,7 +140,6 @@ public class ShareController {
     /**
      * 删除分享包用户
      *
-     * @param userId
      */
     @RequestMapping(value ="/delete/{userId}", method = RequestMethod.DELETE)
     public Result deleteShare(@PathVariable String userId, @RequestHeader(value="X-User-Id") String myId) {
@@ -153,7 +151,6 @@ public class ShareController {
     /**
      * 退出被某用户的分享
      *
-     * @param userId
      */
     @RequestMapping(value ="/quit/{userId}", method = RequestMethod.DELETE)
     public Result quitShare(@PathVariable String userId, @RequestHeader(value="X-User-Id") String myId) {
@@ -164,7 +161,7 @@ public class ShareController {
 
     /**
      * 返回他人分享给自己的仓库的repoUser的用户名和密码
-     * @return
+     *
      */
     @RequestMapping(value = "/getrepouserinfo/{userId}", method = RequestMethod.GET)
     public Result getOthersRepoUserInfo(@PathVariable String userId, @RequestHeader(value="X-User-Id") String myId) {

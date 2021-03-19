@@ -1,7 +1,5 @@
 package com.openeuler.share.pojo;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import java.util.Date;
 import java.util.List;
 

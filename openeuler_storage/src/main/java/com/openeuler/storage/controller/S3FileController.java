@@ -3,7 +3,6 @@ package com.openeuler.storage.controller;
 import com.openeuler.storage.dao.FileDao;
 import com.openeuler.storage.pojo.FileInfo;
 import com.openeuler.storage.pojo.UrlInfo;
-import com.openeuler.user.pojo.RepoUser;
 import entity.PageResult;
 import entity.Result;
 import entity.StatusCode;
@@ -59,7 +58,7 @@ public class S3FileController {
      */
     @RequestMapping(value="/getlist/byid", method = RequestMethod.POST)
     public List<FileDao.ArtifactVersionList> getListById(@RequestBody String userId) {
-        System.out.println("getListById: "+userId);
+        // System.out.println("getListById: "+userId);
         return s3FileService.getListById(userId);
     }
 
@@ -74,7 +73,7 @@ public class S3FileController {
     @GetMapping("/{repo}/search/{page}/{size}")
     public Result searchList(@PathVariable String repo, @PathVariable int page, @PathVariable int size, @RequestParam(name = "q") String keywords, @RequestHeader(value="X-User-Id") String userId) {
         Page<FileDao.ArtifactVersionList> data = s3FileService.searchList(repo, page, size, keywords, userId);
-        System.out.println(data.getTotalElements());
+        // System.out.println(data.getTotalElements());
         return new Result(true, StatusCode.OK, "列举成功", new PageResult<FileDao.ArtifactVersionList>(data.getTotalElements(),data.getContent()));
     }
 
@@ -100,13 +99,13 @@ public class S3FileController {
      */
     @GetMapping("/{repo}/geturl/{groupId}/{artifactId}/{chosenVersion}/")
     public Result getUrl(@PathVariable String repo, @PathVariable String groupId, @PathVariable String artifactId,  @PathVariable String chosenVersion, @RequestHeader(value="X-User-Id") String userId) {
-        System.out.println(repo + groupId + artifactId + chosenVersion);
+        // System.out.println(repo + groupId + artifactId + chosenVersion);
         List<UrlInfo> data = s3FileService.getUrlList(repo, groupId, artifactId, chosenVersion, userId);
         return new Result(true, StatusCode.OK, "列举成功", data);
     }
 
     /**
-     * 获得选中被分享文件的下载地址
+     * 获得选中的被分享文件的下载地址
      *
      * @param userId
      * @param groupId
@@ -155,7 +154,4 @@ public class S3FileController {
         s3FileService.removeFile(repo,groupId,artifactId,chosenVersion,userId);
         return new Result(true, StatusCode.OK, "文件删除成功");
     }
-
-
-
 }
