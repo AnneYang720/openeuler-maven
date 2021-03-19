@@ -24,6 +24,18 @@ public class ShareService {
     @Autowired
     private HttpServletRequest request;
 
+    /**
+     * 新增分享用户
+     *
+     * @param user
+     */
+    public boolean ifExist(User user, String myId) {
+        List<ShareInfo> curInfo = shareDao.findByUserIdAndSharedUserId(myId, user.getId());
+        if(curInfo.size()!=0){
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 新增分享用户
@@ -68,5 +80,11 @@ public class ShareService {
     public Page<ShareInfo> getSharedUsers(int page, int size, String userId) {
         Pageable pageable = PageRequest.of(page-1, size);
         return shareDao.findBySharedUserId(userId, pageable);
+    }
+
+    public String getRepoUserId(String userId,String myId){
+        List<ShareInfo> curInfo = shareDao.findByUserIdAndSharedUserId(userId, myId);
+        if(curInfo.size()!=1){ throw new RuntimeException("无法定位用户"); }
+        return curInfo.get(0).getRepoUserId();
     }
 }

@@ -21,3 +21,9 @@ eureka:
       defaultZone: http://localhost:6868/eureka
   instance:
     prefer-ip-address: true
+amazon:
+  s3:
+    bucket-name: openeuler70-1255566273
+    region: ap-beijing
+    endpoint: https://cos.ap-beijing.myqcloud.com/
+    url: https://openeuler70-1255566273.cos.ap-beijing.myqcloud.com/

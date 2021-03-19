@@ -4,8 +4,6 @@ import com.openeuler.user.dao.RepoUserDao;
 import com.openeuler.user.dao.UserDao;
 import com.openeuler.user.pojo.RepoUser;
 import com.openeuler.user.pojo.User;
-import entity.Result;
-import entity.StatusCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -44,6 +42,8 @@ public class UserService {
     private JwtUtil jwtUtil;
     @Autowired
     private HttpServletRequest request;
+
+    private String url = "https://openeuler70-1255566273.cos.ap-beijing.myqcloud.com/";
 
     /**
      * 鉴定管理员身份
@@ -128,18 +128,6 @@ public class UserService {
         return userDao.findByLoginName(loginName);
     }
 
-    /**
-     * 管理员增加用户
-     *
-     * @param user
-     */
-    public void add(User user) {
-        adminAuthentication();
-        user.setId(idWorker.nextId() + "");
-        user.setPassword(encoder.encode(user.getPassword()));
-        user.setRegDate(new Date());
-        userDao.save(user);
-    }
 
     /**
      * 注册
@@ -150,8 +138,8 @@ public class UserService {
         user.setId(idWorker.nextId() + "");
         user.setPassword(encoder.encode(user.getPassword()));
         user.setRegDate(new Date());
-        addRepoUser(user.getId(),"release");
-        addRepoUser(user.getId(),"snapshot");
+        user.setRepoUserReleaseId(addRepoUser(user.getId(),"release"));
+        user.setRepoUserSnapshotId(addRepoUser(user.getId(),"snapshot"));
         userDao.save(user);
     }
 
@@ -159,7 +147,7 @@ public class UserService {
         RepoUser repoUser = new RepoUser();
         repoUser.setId(idWorker.nextId() + "");
         repoUser.setOwnerId(ownerId);
-        repoUser.setRepo(repo);
+        repoUser.setRepoDir(url+ownerId+"/"+repo);
         repoUser.setUser_name(Base64.getEncoder().encodeToString((idWorker.nextId() + "").getBytes()));
         repoUser.setPassword(Base64.getEncoder().encodeToString((idWorker.nextId() + "").getBytes()));
         repoUserDao.save(repoUser);
@@ -170,6 +158,12 @@ public class UserService {
         RepoUser repoUser = repoUserDao.findById(id).get();
         repoUserDao.delete(repoUser);
     }
+
+    public RepoUser getRepoInfo(String id){
+        RepoUser repoUser = repoUserDao.findById(id).get();
+        return repoUser;
+    }
+
     /**
      * 修改
      *

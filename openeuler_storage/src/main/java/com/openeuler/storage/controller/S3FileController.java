@@ -3,6 +3,7 @@ package com.openeuler.storage.controller;
 import com.openeuler.storage.dao.FileDao;
 import com.openeuler.storage.pojo.FileInfo;
 import com.openeuler.storage.pojo.UrlInfo;
+import com.openeuler.user.pojo.RepoUser;
 import entity.PageResult;
 import entity.Result;
 import entity.StatusCode;

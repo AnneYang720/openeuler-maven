@@ -15,11 +15,13 @@ public class SharedFileInfo {
     String userId;
     List<String> versionList;
     List<String> idList;
+    String repoUserName;
+    String repoPassword;
 
     public SharedFileInfo() {
     }
 
-    public SharedFileInfo(String groupId, String artifactId, Date updateTime, int versionNum, String latestVersion, String uploadUser, String userId, List<String> versionList, List<String> idList) {
+    public SharedFileInfo(String groupId, String artifactId, Date updateTime, int versionNum, String latestVersion, String uploadUser, String userId, List<String> versionList, List<String> idList, String repoUserName, String repoPassword) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.updateTime = updateTime;
@@ -101,5 +103,21 @@ public class SharedFileInfo {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getRepoUserName() {
+        return repoUserName;
+    }
+
+    public void setRepoUserName(String repoUserName) {
+        this.repoUserName = repoUserName;
+    }
+
+    public String getRepoPassword() {
+        return repoPassword;
+    }
+
+    public void setRepoPassword(String repoPassword) {
+        this.repoPassword = repoPassword;
     }
 }

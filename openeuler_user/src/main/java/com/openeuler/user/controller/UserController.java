@@ -1,5 +1,6 @@
 package com.openeuler.user.controller;
 
+import com.openeuler.user.pojo.RepoUser;
 import com.openeuler.user.pojo.User;
 import com.openeuler.user.service.UserService;
 import entity.Result;
@@ -84,16 +85,6 @@ public class UserController {
         return new Result(true, StatusCode.OK, "修改成功");
     }
 
-    /**
-     * 管理员增加用户
-     *
-     * @param user
-     */
-    @PostMapping("/add")
-    public Result add(@RequestBody User user){
-        userService.add(user);
-        return new Result(true, StatusCode.OK, "管理员添加用户成功");
-    }
 
 
     /**
@@ -132,17 +123,38 @@ public class UserController {
      * @return
      */
     @RequestMapping(value = "/addshare", method = RequestMethod.POST)
-    public String addShareUser(@RequestHeader(value="X-User-Id") String userId) {
-        return userService.addRepoUser( userId,"release");
+    public String addShareUser(@RequestBody String id) {
+        return userService.addRepoUser( id,"release");
     }
 
     /**
      * 当前登录用户给本人release仓库删除一项用户名和密码
      * @return
      */
-    @RequestMapping(value = "/deleterepouser/id", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/deleterepouser", method = RequestMethod.DELETE)
     public void deleteRepoUser(@RequestBody String id) {
         userService.deleteRepoUser(id);
+    }
+
+    /**
+     * 返回某个repoUser的用户名和密码
+     * @return
+     */
+    @RequestMapping(value = "/getrepoinfo/id", method = RequestMethod.POST)
+    public RepoUser getRepoInfo(@RequestBody String id) {
+        return userService.getRepoInfo(id);
+    }
+
+    /**
+     * 返回当前用户本人仓库的repoUser的用户名和密码
+     * @return
+     */
+    @RequestMapping(value = "/{repo}/getrepouserinfo", method = RequestMethod.GET)
+    public Result getRepoInfoByRepo(@PathVariable String repo, @RequestHeader(value="X-User-Id") String userId) {
+        User curUser = userService.findById(userId);
+        System.out.println(repo);
+        String repoUserId = repo.equals("release")? curUser.getRepoUserReleaseId():curUser.getRepoUserSnapshotId();
+        return new Result(true, StatusCode.OK, "查询成功", userService.getRepoInfo(repoUserId));
     }
 
     /**
@@ -155,6 +167,17 @@ public class UserController {
     public User findByLoginName(@RequestBody User user) {
         System.out.println("findByLoginName: "+user.getLoginName());
         return userService.findByLoginName(user.getLoginName());
+    }
+
+    /**
+     * 根据UserName查询
+     *
+     * @param userName
+     * @return
+     */
+    @RequestMapping(value = "/find/loginname/bystring", method = RequestMethod.POST)
+    public User findByLoginNameByString(@RequestBody String userName) {
+        return userService.findByLoginName(userName);
     }
 
     /**

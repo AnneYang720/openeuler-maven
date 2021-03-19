@@ -5,7 +5,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 实体类
@@ -19,16 +18,16 @@ public class RepoUser implements Serializable{
     @NotNull
     private String ownerId;//登录名
     @NotNull
-    private String repo;//E-Mail
+    private String repoDir;//E-Mail
     @NotNull
     private String user_name;//密码
     @NotNull
     private String password;//密码
 
-    public RepoUser(String id, @NotNull String ownerId, @NotNull String repo, @NotNull String user_name, @NotNull String password) {
+    public RepoUser(String id, @NotNull String ownerId, @NotNull String repoDir, @NotNull String user_name, @NotNull String password) {
         this.id = id;
         this.ownerId = ownerId;
-        this.repo = repo;
+        this.repoDir = repoDir;
         this.user_name = user_name;
         this.password = password;
     }
@@ -52,12 +51,12 @@ public class RepoUser implements Serializable{
         this.ownerId = ownerId;
     }
 
-    public String getRepo() {
-        return repo;
+    public String getRepoDir() {
+        return repoDir;
     }
 
-    public void setRepo(String repo) {
-        this.repo = repo;
+    public void setRepoDir(String repoDir) {
+        this.repoDir = repoDir;
     }
 
     public String getUser_name() {

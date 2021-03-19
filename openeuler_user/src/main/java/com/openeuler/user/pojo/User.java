@@ -28,16 +28,8 @@ public class User implements Serializable {
     private java.util.Date regDate;//注册日期
     private java.util.Date updateDate;//修改日期
     private java.util.Date lastDate;//最后登陆日期
-//    private String nickname;//昵称
-//    private String sex;//性别
-//    private java.util.Date birthday;//出生年月日
-//    private String avatar;//头像
-//    private String mobile;//手机号码
-//    private Long online;//在线时长（分钟）
-//    private String interest;//兴趣
-//    private String personality;//个性
-//    private Integer fanscount;//粉丝数
-//    private Integer followcount;//关注数
+    private String repoUserReleaseId;
+    private String repoUserSnapshotId;
 
 
     public String getId() {
@@ -94,5 +86,21 @@ public class User implements Serializable {
 
     public void setLastDate(Date lastdate) {
         this.lastDate = lastdate;
+    }
+
+    public String getRepoUserReleaseId() {
+        return repoUserReleaseId;
+    }
+
+    public void setRepoUserReleaseId(String repoUserReleaseId) {
+        this.repoUserReleaseId = repoUserReleaseId;
+    }
+
+    public String getRepoUserSnapshotId() {
+        return repoUserSnapshotId;
+    }
+
+    public void setRepoUserSnapshotId(String repoUserSnapshotId) {
+        this.repoUserSnapshotId = repoUserSnapshotId;
     }
 }

@@ -122,16 +122,20 @@ public class ShareController {
             User existUser = userClient.findByLoginName(user);
 //            System.out.println(existUser.getId());
             if (existUser != null) {
-                String repoUserId = userClient.addShareUser();
-                shareService.addShareUser(existUser,myId, repoUserId);
-                return new Result(true, StatusCode.OK, "添加分享成功");
+                if(shareService.ifExist(existUser,myId)){
+                    return new Result(false, StatusCode.ERROR, "添加失败，用户名已存在");
+                }else{
+                    String repoUserId = userClient.addShareUser(myId);
+                    System.out.println("repoUserId: " + repoUserId);
+                    shareService.addShareUser(existUser, myId, repoUserId);
+                    return new Result(true, StatusCode.OK, "添加分享成功");
+                }
             } else {
                 return new Result(false, StatusCode.ERROR, "添加失败，用户名不存在");
             }
         }catch (Exception e){
             return new Result(false, StatusCode.ERROR, e.getMessage());
         }
-
     }
 
     /**
@@ -156,6 +160,17 @@ public class ShareController {
         String repoUserId = shareService.quitShare(userId, myId);
         userClient.deleteRepoUser(repoUserId);
         return new Result(true, StatusCode.OK, "退出分享成功");
+    }
+
+    /**
+     * 返回他人分享给自己的仓库的repoUser的用户名和密码
+     * @return
+     */
+    @RequestMapping(value = "/getrepouserinfo/{userId}", method = RequestMethod.GET)
+    public Result getOthersRepoUserInfo(@PathVariable String userId, @RequestHeader(value="X-User-Id") String myId) {
+        String repoUserId = shareService.getRepoUserId(userId,myId);
+        System.out.println("repoUserId: "+repoUserId);
+        return new Result(true, StatusCode.OK, "查询成功", userClient.getRepoInfo(repoUserId));
     }
 }
 
