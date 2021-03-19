@@ -140,8 +140,8 @@ export default {
   },
   data(){
         return {
-          shareuserlist:[], //主动分享的用户信息
-          shareduserlist:[], //被分享的用户信息
+          shareuserlist:[], //当前用户主动分享的用户信息
+          shareduserlist:[], //分享给当前用户的用户信息
           total1: 0, //总条数
           currentPage1: 1, //当前页数
           pageSize1: 5, //每页条数
@@ -149,12 +149,12 @@ export default {
           currentPage2: 1, //当前页数
           pageSize2: 5, //每页条数
           dialogVisible: false, //增加被分享用户的弹出框
-          repoVisible:false,
+          repoVisible:false, //显示其他用户分享给当前用户的Repo配置的弹框
           repoTitle: '仓库配置',
-          repoDir:'',
-          repoUserName:'',
-          repoPassword:'',
-          addUserForm: {
+          repoDir:'', //Repo配置的Repo路径
+          repoUserName:'', //Repo配置的RepoUser用户名
+          repoPassword:'', //Repo配置的RepoUser密码
+          addUserForm: { //当前用户新增分享用户
             loginName: ''
           },
           addUserRules: {

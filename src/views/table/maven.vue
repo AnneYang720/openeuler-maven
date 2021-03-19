@@ -204,9 +204,10 @@ export default {
           currentPage: 1, //当前页数
           pageSize: 10, //每页条数
           keywords: '', //搜索关键词
-          repoDir:'',
-          repoUserName:'',
-          repoPassword:'',
+          repoTitle: '仓库配置',
+          repoDir:'', //Repo配置的Repo路径
+          repoUserName:'', //Repo配置的RepoUser用户名
+          repoPassword:'', //Repo配置的RepoUser密码
           dialogVisible: false, //新建包的弹出框
           detailVisible: false, //点开某行展示具体内容的弹出框
           repoVisible: false, //repo的用户名和密码
@@ -217,7 +218,6 @@ export default {
           uploadPOMUrl: '', //后端返回的pom上传url
           packageName: '', //当前点开行的包名
           chosenVersion: '', //当前选中的版本号
-          repoTitle: '仓库配置',
           vList: [], //记录某一行的versionList
           uploadForm: {
             groupId: '',
