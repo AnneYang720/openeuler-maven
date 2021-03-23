@@ -130,8 +130,24 @@ public class S3FileService extends S3ClientService {
     }
 
 
+//    /**
+//     * 获得选中文件的下载地址
+//     *
+//     */
+//    public List<UrlInfo> getUrlList(String repo, String groupId, String artifactId, String version, String userId) {
+//        List<FileInfo> curInfo = fileDao.findByUserIdAndRepoAndGroupIdAndArtifactIdAndVersion(userId, repo, groupId, artifactId, version);
+//        if(curInfo.size()!=1){
+//            throw new RuntimeException("无法定位文件");
+//        }
+//        List<UrlInfo> res = new ArrayList<>();
+//        String filename = artifactId + "-" + version+".";
+//        res.add(new UrlInfo(filename+ curInfo.get(0).getPackaging(), curInfo.get(0).getJarUrl(), curInfo.get(0).getUpdateDate()));
+//        res.add(new UrlInfo(filename+"pom", curInfo.get(0).getPomUrl(), curInfo.get(0).getUpdateDate()));
+//        return res;
+//    }
+
     /**
-     * 获得选中文件的下载地址
+     * 新-获得选中文件的下载地址
      *
      */
     public List<UrlInfo> getUrlList(String repo, String groupId, String artifactId, String version, String userId) {
@@ -139,13 +155,33 @@ public class S3FileService extends S3ClientService {
         if(curInfo.size()!=1){
             throw new RuntimeException("无法定位文件");
         }
-        List<UrlInfo> res = new ArrayList<>();
+        java.util.Date expiration = new java.util.Date();
+        long expTimeMillis = expiration.getTime();
+        expTimeMillis += 1000 * 60 * 60;
+        expiration.setTime(expTimeMillis);
+
+        // Generate the pre-signed URL.
+        System.out.println("Generating pre-signed URL for download.");
         String filename = artifactId + "-" + version+".";
-        res.add(new UrlInfo(filename+ curInfo.get(0).getPackaging(), curInfo.get(0).getJarUrl(), curInfo.get(0).getUpdateDate()));
-        res.add(new UrlInfo(filename+"pom", curInfo.get(0).getPomUrl(), curInfo.get(0).getUpdateDate()));
+        String objectKey = userId+"/"+repo+"/"+groupId.replace(".", "/") + "/" + artifactId + "/" + version + "/" + filename;
+
+        String objectKeyJAR = objectKey + curInfo.get(0).getPackaging();
+        GeneratePresignedUrlRequest generatePresignedUrlRequestJAR = new GeneratePresignedUrlRequest(getBucketName(), objectKeyJAR)
+                .withMethod(HttpMethod.GET)
+                .withExpiration(expiration);
+        String downloadJARUrl = getClient().generatePresignedUrl(generatePresignedUrlRequestJAR).toString();
+
+        String objectKeyPOM = objectKey + "pom";
+        GeneratePresignedUrlRequest generatePresignedUrlRequestPOM = new GeneratePresignedUrlRequest(getBucketName(), objectKeyPOM)
+                .withMethod(HttpMethod.GET)
+                .withExpiration(expiration);
+        String downloadPOMUrl = getClient().generatePresignedUrl(generatePresignedUrlRequestPOM).toString();
+
+        List<UrlInfo> res = new ArrayList<>();
+        res.add(new UrlInfo(filename+ curInfo.get(0).getPackaging(), downloadJARUrl, curInfo.get(0).getUpdateDate()));
+        res.add(new UrlInfo(filename+"pom", downloadPOMUrl, curInfo.get(0).getUpdateDate()));
         return res;
     }
-
 
     /**
      * 获得选中的被分享文件的下载地址

@@ -79,6 +79,17 @@ public class UserService {
         return userDao.findByLoginName(loginName);
     }
 
+    /**
+     * 根据repoUser信息查询RepoUser实体
+     *
+     * @param repoUser
+     * @return
+     */
+    public boolean findRepoUser(RepoUser repoUser) {
+        RepoUser curRepoUser = repoUserDao.findByOwnerIdAndRepoAndUserNameAndPassword(
+                repoUser.getOwnerId(),repoUser.getRepo(),repoUser.getUserName(),repoUser.getPassword());
+        return curRepoUser!=null;
+    }
 
     /**
      * 注册
@@ -103,8 +114,9 @@ public class UserService {
         RepoUser repoUser = new RepoUser();
         repoUser.setId(idWorker.nextId() + "");
         repoUser.setOwnerId(ownerId);
+        repoUser.setRepo(repo);
         repoUser.setRepoDir(url+ownerId+"/"+repo);
-        repoUser.setUser_name(Base64.getEncoder().encodeToString((idWorker.nextId() + "").getBytes()));
+        repoUser.setUserName(Base64.getEncoder().encodeToString((idWorker.nextId() + "").getBytes()));
         repoUser.setPassword(Base64.getEncoder().encodeToString((idWorker.nextId() + "").getBytes()));
         repoUserDao.save(repoUser);
         return repoUser.getId();

@@ -12,4 +12,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface RepoUserDao extends JpaRepository<RepoUser,String>, JpaSpecificationExecutor<RepoUser> {
 
+    RepoUser findByOwnerIdAndRepoAndUserNameAndPassword(String ownerId, String repo, String userName, String password);
+
 }

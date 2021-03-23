@@ -52,6 +52,8 @@ public class JWTAuthFilter extends ZuulFilter {
             return false;
         } else if("web".equals(requestContext.get(PROXY_KEY))){
             return false;
+        } else if("/user/repouser/auth".equalsIgnoreCase(request.getRequestURI())){
+            return false;
         }
 
         return true;

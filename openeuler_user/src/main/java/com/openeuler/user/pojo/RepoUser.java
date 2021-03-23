@@ -18,17 +18,21 @@ public class RepoUser implements Serializable{
     @NotNull
     private String ownerId;//库创建者userId
     @NotNull
+    private String repo;//库的repo
+    @NotNull
     private String repoDir;//库url地址
     @NotNull
-    private String user_name;//认证该库的用户名
+    private String userName;//认证该库的用户名
     @NotNull
     private String password;//认证该库的密码
 
-    public RepoUser(String id, @NotNull String ownerId, @NotNull String repoDir, @NotNull String user_name, @NotNull String password) {
+
+    public RepoUser(String id, @NotNull String ownerId, @NotNull String repo, @NotNull String repoDir, @NotNull String userName, @NotNull String password) {
         this.id = id;
         this.ownerId = ownerId;
+        this.repo = repo;
         this.repoDir = repoDir;
-        this.user_name = user_name;
+        this.userName = userName;
         this.password = password;
     }
 
@@ -59,12 +63,12 @@ public class RepoUser implements Serializable{
         this.repoDir = repoDir;
     }
 
-    public String getUser_name() {
-        return user_name;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUser_name(String user_name) {
-        this.user_name = user_name;
+    public void setUserName(String user_name) {
+        this.userName = user_name;
     }
 
     public String getPassword() {
@@ -73,5 +77,13 @@ public class RepoUser implements Serializable{
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getRepo() {
+        return repo;
+    }
+
+    public void setRepo(String repo) {
+        this.repo = repo;
     }
 }

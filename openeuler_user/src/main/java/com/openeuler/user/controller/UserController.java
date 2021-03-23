@@ -130,7 +130,7 @@ public class UserController {
     @RequestMapping(value = "/{repo}/getrepouserinfo", method = RequestMethod.GET)
     public Result getRepoInfoByRepo(@PathVariable String repo, @RequestHeader(value="X-User-Id") String userId) {
         User curUser = userService.findById(userId);
-        System.out.println(repo);
+        // System.out.println(repo);
         String repoUserId = repo.equals("release")? curUser.getRepoUserReleaseId():curUser.getRepoUserSnapshotId();
         return new Result(true, StatusCode.OK, "查询成功", userService.getRepoInfo(repoUserId));
     }
@@ -145,6 +145,17 @@ public class UserController {
     public User findByLoginName(@RequestBody User user) {
         System.out.println("findByLoginName: "+user.getLoginName());
         return userService.findByLoginName(user.getLoginName());
+    }
+
+    /**
+     * RepoUser验证
+     *
+     * @param repoUser
+     * @return
+     */
+    @RequestMapping(value = "/repouser/auth", method = RequestMethod.POST)
+    public Result repoUserAuth(@RequestBody RepoUser repoUser) {
+        return new Result(true, StatusCode.OK, "查询成功", userService.findRepoUser(repoUser));
     }
 
 }
