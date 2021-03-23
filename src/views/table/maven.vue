@@ -49,7 +49,6 @@
         label="版本数">
       </el-table-column>
       <el-table-column
-        fixed="right"
         label="操作"
         width="100">
         <template slot-scope="scope">
@@ -173,11 +172,11 @@
     <el-dialog
       :title="repoTitle"
       :visible.sync="repoVisible"
-      width="45%"
+      width="50%"
       >
 
       <div>
-      <div style="line-height:40px;margin-left:5%"> <span>仓库地址</span><span style="color:black;margin-left:27px">{{repoDir}}</span> </div>
+      <div style="line-height:40px;margin-left:5%"> <span>仓库地址</span><span style="color:black;margin-left:27px;display:flow-root">{{repoDir}}</span> </div>
       <div style="line-height:40px;margin-left:5%"> <span>用户名</span><span style="color:black;margin-left:40.5px">{{repoUserName}}</span> </div>
       <div style="line-height:40px;margin-left:5%"> <span>密码</span><span style="color:black;margin-left:54px">{{repoPassword}}</span> </div>
       </div>
@@ -255,7 +254,7 @@ export default {
         openRepoDialog(){
           getRepoUserInfo(this.$router.currentRoute.name).then(response =>{
             this.repoDir = response.data.repoDir
-            this.repoUserName = response.data.user_name
+            this.repoUserName = response.data.userName
             this.repoPassword = response.data.password
             this.repoVisible = true
           }).catch(() => {

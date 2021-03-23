@@ -21,7 +21,6 @@
         label="用户邮箱">
       </el-table-column>
       <el-table-column
-        fixed="right"
         label="操作"
         width="100">
         <template slot-scope="scope">
@@ -110,10 +109,11 @@
     <el-dialog
       :title="repoTitle"
       :visible.sync="repoVisible"
-      width="45%"
+      width="50%"
       >
 
       <div>
+      <div style="line-height:40px;margin-left:5%"> <span>创建者</span><span style="color:black;margin-left:40.5px">{{repoOwner}}</span> </div>
       <div style="line-height:40px;margin-left:5%"> <span>仓库地址</span><span style="color:black;margin-left:27px">{{repoDir}}</span> </div>
       <div style="line-height:40px;margin-left:5%"> <span>用户名</span><span style="color:black;margin-left:40.5px">{{repoUserName}}</span> </div>
       <div style="line-height:40px;margin-left:5%"> <span>密码</span><span style="color:black;margin-left:54px">{{repoPassword}}</span> </div>
@@ -153,6 +153,7 @@ export default {
           repoTitle: '仓库配置',
           repoDir:'', //Repo配置的Repo路径
           repoUserName:'', //Repo配置的RepoUser用户名
+          repoOwner:'',//该Repo的创建者
           repoPassword:'', //Repo配置的RepoUser密码
           addUserForm: { //当前用户新增分享用户
             loginName: ''
@@ -198,8 +199,9 @@ export default {
 
         openRepoDialog(row){
           shareApi.getRepoUserInfo(row.userId).then(response =>{
+            this.repoOwner = row.loginName
             this.repoDir = response.data.repoDir
-            this.repoUserName = response.data.user_name
+            this.repoUserName = response.data.userName
             this.repoPassword = response.data.password
             this.repoVisible = true
           }).catch(() => {
