@@ -6,8 +6,8 @@ const user = {
     token: getToken(),
     loginName: '',
     avatar: '',
-    roles: [],
-    email:''
+    email:'',
+    userId:'',
   },
 
   mutations: {
@@ -20,11 +20,11 @@ const user = {
     SET_AVATAR: (state, avatar) => {
       state.avatar = avatar
     },
-    SET_ROLES: (state, roles) => {
-      state.roles = roles
-    },
     SET_EMAIL: (state, email) => {
       state.email = email
+    },
+    SET_USERID: (state, userId) => {
+      state.userId = userId
     }
   },
 
@@ -49,10 +49,11 @@ const user = {
       return new Promise((resolve, reject) => {
         getInfo().then(response => {
           const data = response.data
-          commit('SET_ROLES', data.roles)
           commit('SET_LOGINNAME', data.loginName)
-          commit('SET_AVATAR', data.avatar)
+          //commit('SET_AVATAR', data.avatar)
+          commit('SET_AVATAR',"https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif")
           commit('SET_EMAIL', data.email)
+          commit('SET_USERID', data.userId)
           resolve(response)
         }).catch(error => {
           reject(error)
@@ -61,7 +62,7 @@ const user = {
     },
 
     // 登出
-    LogOut({ commit, state }) {
+    LogOut({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
         // logout(state.token).then(() => {
           commit('SET_TOKEN', '')

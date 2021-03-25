@@ -23,6 +23,7 @@ import Layout from '../views/layout/Layout'
 **/
 export const constantRouterMap = [
   { path: '/login', component: () => import('@/views/login/index'), hidden: true },
+  { path: '/register', component: () => import('@/views/register/index'), hidden: true },
   { path: '/404', component: () => import('@/views/404'), hidden: true },
 
   {
@@ -45,20 +46,22 @@ export const constantRouterMap = [
     meta: { title: 'Maven 仓库', icon: 'example' },
     children: [
       {
-        //path: 'table',
-        //name: 'Table',
         path: 'release',
         name: 'release',
         component: () => import('@/views/table/maven'),
         meta: { title: '生产库-release', icon: 'table', reuse: false }
       },
       {
-        //path: 'tree',
-        //name: 'Tree',
         path: 'snapshot',
         name: 'snapshot',
         component: () => import('@/views/table/maven'),
         meta: { title: '非生产库-snapshot', icon: 'table', reuse: false  }
+      },
+      {
+        path: 'share',
+        name: 'share',
+        component: () => import('@/views/table/share'),
+        meta: { title: '分享库-share', icon: 'table', reuse: false  }
       }
     ]
   },

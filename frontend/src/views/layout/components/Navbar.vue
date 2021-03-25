@@ -4,15 +4,18 @@
     <breadcrumb></breadcrumb>
     <el-dropdown class="avatar-container" trigger="click">
       <div class="avatar-wrapper">
-        <img class="user-avatar" :src="avatar+'?imageView2/1/w/80/h/80'">
+        <!-- <img class="user-avatar" :src="avatar+'?imageView2/1/w/80/h/80'">
+         -->
+        <v-gravatar class="user-avatar" :email="email" alt="Avatar" default-img="identicon" />
+
         <i class="el-icon-caret-bottom"></i>
       </div>
       <el-dropdown-menu class="user-dropdown" slot="dropdown">
-        <el-dropdown-item>
-          <span @click="dialogVisible = true" type="text" size="small">个人设置</span>
+        <el-dropdown-item @click.native="dialogVisible = true" >
+          <span type="text" size="small">个人设置</span>
         </el-dropdown-item>
-        <el-dropdown-item divided>
-          <span @click="logout" style="display:block;">退出登录</span>
+        <el-dropdown-item @click.native="logout" divided>
+          <span style="display:block;">退出登录</span>
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
@@ -22,7 +25,8 @@
       :visible.sync="dialogVisible"
       width="30%"
       >
-      <el-form label-width="80px">
+
+      <el-form label-width="20%" style="width:95%">
         <el-form-item label="用户名">
           <el-input v-model="pojo.loginName" :placeholder="loginName"></el-input>
         </el-form-item>
@@ -38,6 +42,8 @@
         <el-button @click="dialogVisible = false">关 闭</el-button>
       </span>
     </el-dialog>
+
+
   </el-menu>
   
 </template>
@@ -101,7 +107,7 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 .navbar {
   height: 50px;
-  line-height: 50px;
+  // line-height: 50px;
   border-radius: 0px !important;
   .hamburger-container {
     line-height: 58px;
@@ -138,5 +144,6 @@ export default {
     }
   }
 }
+
 </style>
 

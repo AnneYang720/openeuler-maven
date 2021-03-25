@@ -26,6 +26,22 @@ export function updateInfo(pojo){
   })
 }
 
+export function register(pojo){
+  return request({
+      url: '/user/register',
+      method: 'post',
+      data: pojo
+  })
+}
+
+export function getRepoUserInfo(repo){
+  return request({
+      url: `/user/${repo}/getrepouserinfo`,//ES6写法
+      method: 'get'
+  });
+}
+
+
 // export function getInfoById(userId) {
 //   return request({
 //     url: `/user/${userId}`,

@@ -1,31 +1,35 @@
 <template>
-  <div class="login-container">
-    <el-form autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left" label-width="0px"
+  <div class="regis-container">
+    <el-form :model="registerForm" :rules="registerRules" ref="registerForm" label-position="left" label-width="0px"
       class="card-box login-form">
-      <h3 class="title">Maven私库登录</h3>
+      <h3 class="title">Maven私库用户注册</h3>
+
+      <el-form-item prop="loginName">
+        <span class="svg-container svg-container_login">
+          <svg-icon icon-class="user" />
+        </span>
+        <el-input name="loginName" type="text" v-model="registerForm.loginName" placeholder="用户名" />
+      </el-form-item>
+
       <el-form-item prop="email">
         <span class="svg-container svg-container_login">
           <svg-icon icon-class="user" />
         </span>
-        <el-input name="email" type="text" v-model="loginForm.email" autoComplete="on" placeholder="Email" />
+        <el-input name="email" type="text" v-model="registerForm.email" placeholder="Email" />
       </el-form-item>
+
       <el-form-item prop="password">
         <span class="svg-container">
           <svg-icon icon-class="password"></svg-icon>
         </span>
-        <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
+        <el-input name="password" :type="pwdType" v-model="registerForm.password" 
           placeholder="password"></el-input>
           <span class="show-pwd" @click="showPwd"><svg-icon icon-class="eye" /></span>
       </el-form-item>
-      <el-form-item class=el-form-item-button>
-        <el-button type="primary" style="width:45%;" :loading="loading" @click.native.prevent="handleLogin">
-          登录
+      <el-form-item>
+        <el-button type="primary" style="width:100%;" :loading="loading" @click.native.prevent="handleRegister">
+          注册
         </el-button>
-        <router-link to="/register"> 
-          <el-button type="primary" style="width:45%;margin-left:20px;">
-            注册
-          </el-button>
-        </router-link>
       </el-form-item>
     </el-form>
   </div>
@@ -33,9 +37,10 @@
 
 <script>
 import { isvalidEmail } from '@/utils/validate'
+import {register} from '@/api/login'
 
 export default {
-  name: 'login',
+  name: 'register',
   data() {
     const validateEmail = (rule, value, callback) => {
       if (!isvalidEmail(value)) {
@@ -44,13 +49,22 @@ export default {
         callback()
       }
     }
+    const validatePass = (rule, value, callback) => {
+      if (value.length < 5) {
+        callback(new Error('密码不能小于5位'))
+      } else {
+        callback()
+      }
+    }
     return{
-      loginForm: {
+      registerForm: {
+        loginName: '',
         email: '',
         password: ''
       },
-      loginRules: {
-        email: [{ required: true, trigger: 'blur', validator: validateEmail }]
+      registerRules: {
+        email: [{ required: true, trigger: 'blur', validator: validateEmail }],
+        password: [{ required: true, trigger: 'blur', validator: validatePass }]
       },
       loading: false,
       pwdType: 'password'
@@ -64,20 +78,19 @@ export default {
         this.pwdType = 'password'
       }
     },
-    handleLogin() {
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('Login', this.loginForm).then(() => {
-            this.loading = false
-            this.$router.push({ path: '/' })
-          }).catch(() => {
-            this.loading = false
+    handleRegister() {
+      this.$refs.registerForm.validate(valid => {
+        if(valid){
+          register(this.registerForm).then(response =>{
+            this.$message({
+              message: response.message,
+              type: (response.flag ? 'success':'error')
+            });
+            if(response.flag){//如果成功
+              this.$router.push({ path: '/' })
+            }
           })
-        } else {
-          console.log('error submit!!')
-          return false
-        }
+        }  
       })
     }
   }
@@ -89,7 +102,7 @@ export default {
   $dark_gray:#889aa4;
   $light_gray:#eee;
 
-  .login-container {
+  .regis-container {
     position: fixed;
     height: 100%;
     width:100%;
@@ -148,13 +161,6 @@ export default {
       background: rgba(0, 0, 0, 0.1);
       border-radius: 5px;
       color: #454545;
-    }
-    .el-form-item-button {
-      text-align: center;
-      border: 0px;
-      background: rgba(45, 58, 75, 1);
-      border-radius: 0px;
-      color: #2d3a4b;
     }
     .show-pwd {
       position: absolute;
