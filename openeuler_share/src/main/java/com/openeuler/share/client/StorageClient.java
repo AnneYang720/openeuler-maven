@@ -17,5 +17,5 @@ public interface StorageClient {
     List<SharedFileInfo> getListById(@RequestBody String id);
 
     @RequestMapping( value ="/maven/searchlist/{id}", method = RequestMethod.POST)
-    List<SharedFileInfo> searchListById(@PathVariable String id, @RequestBody String keywords);
+    List<SharedFileInfo> searchListById(@PathVariable("id") String id, @RequestBody String keywords);
 }

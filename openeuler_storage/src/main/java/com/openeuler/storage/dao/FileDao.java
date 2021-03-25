@@ -1,7 +1,6 @@
 package com.openeuler.storage.dao;
 
 import com.openeuler.storage.pojo.FileInfo;
-import com.openeuler.user.pojo.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
