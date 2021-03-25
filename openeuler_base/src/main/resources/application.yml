@@ -1,5 +1,5 @@
 server:
-  port: 9001
+  port: ${PORT:9001}
 spring:
   application:
     name: openeuler-base #指定服务名
@@ -11,7 +11,7 @@ jwt:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:6868/eureka/
+      defaultZone: ${EUREKASERVER_URI:http://localhost:6868/eureka/}
   instance:
     prefer-ip-address: true
 
