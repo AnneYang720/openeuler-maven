@@ -15,9 +15,11 @@ services:
       - 9001:9001
     links:
       - eureka
+      - web
     environment:
       PORT: "9001"
       EUREKASERVER_URI: "http://eureka:8761/eureka/"
+      FRONTEND_URI: "http://web:80/"
 
   share:
     build: ./openeuler_share
@@ -36,9 +38,12 @@ services:
       EUREKASERVER_URI: "http://eureka:8761/eureka/"
 
   user:
-    build: ./user-service
+    build: ./openeuler_user
     links:
       - eureka
     environment:
       PORT: "9008"
       EUREKASERVER_URI: "http://eureka:8761/eureka/"
+
+  web:
+    build: ./frontend
