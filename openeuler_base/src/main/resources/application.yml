@@ -5,7 +5,7 @@ spring:
     name: openeuler-base #指定服务名
 jwt:
   config:
-    key: itcast
+    key: ${JWT_KEY:openeuler}
     ttl: 86400000
 
 eureka:

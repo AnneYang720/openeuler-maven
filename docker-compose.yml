@@ -1,13 +1,14 @@
 version: '3.1'
 
 services:
-
   eureka:
     build: ./openeuler_eureka
     ports:
       - 8761:8761
     environment:
       PORT: "8761"
+    env_file:
+      - config.env
 
   zuul:
     build: ./openeuler_base
@@ -20,6 +21,8 @@ services:
       PORT: "9001"
       EUREKASERVER_URI: "http://eureka:8761/eureka/"
       FRONTEND_URI: "http://web:80/"
+    env_file:
+      - config.env
 
   share:
     build: ./openeuler_share
@@ -28,6 +31,8 @@ services:
     environment:
       PORT: "9010"
       EUREKASERVER_URI: "http://eureka:8761/eureka/"
+    env_file:
+      - config.env
 
   storage:
     build: ./openeuler_storage
@@ -36,6 +41,8 @@ services:
     environment:
       PORT: "9009"
       EUREKASERVER_URI: "http://eureka:8761/eureka/"
+    env_file:
+      - config.env
 
   user:
     build: ./openeuler_user
@@ -44,6 +51,8 @@ services:
     environment:
       PORT: "9008"
       EUREKASERVER_URI: "http://eureka:8761/eureka/"
+    env_file:
+      - config.env
 
   web:
     build: ./frontend

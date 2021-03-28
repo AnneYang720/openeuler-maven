@@ -23,9 +23,4 @@ public class ShareApplication {
     public IdWorker idWorker() {
         return new IdWorker(3, 1);
     }
-
-    @Bean
-    public JwtUtil jwtUtil() {
-        return new JwtUtil();
-    }
 }

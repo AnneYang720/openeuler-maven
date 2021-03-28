@@ -5,25 +5,19 @@ spring:
     name: openeuler-user
   datasource:
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://101.32.203.164:3306/openeuler_user?characterEncoding=utf-8
-    username: root
-    password: XIAObbMIAOx3HeiHeiHei
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT:3306}/${DB_BASE_NAME:openeuler}_user?characterEncoding=utf-8
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
   jpa:
     database: MySQL
     show-sql: true
 jwt:
   config:
-    key: itcast
-    #ttl: 360000  # 毫秒
+    key: ${JWT_KEY:openeuler}
+    ttl: 86400000
 eureka:
   client:
     service-url:
       defaultZone: ${EUREKASERVER_URI:http://localhost:6868/eureka/}
   instance:
     prefer-ip-address: true
-amazon:
-  s3:
-    bucket-name: openeuler70-1255566273
-    region: ap-beijing
-    endpoint: https://cos.ap-beijing.myqcloud.com/
-    url: https://openeuler70-1255566273.cos.ap-beijing.myqcloud.com/

@@ -1,0 +1,36 @@
+server:
+  port: ${PORT:9010}
+spring:
+  application:
+    name: openeuler-share
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT:3306}/${DB_BASE_NAME:openeuler}_share?characterEncoding=utf-8
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+  jpa:
+    database: MySQL
+    show-sql: true
+    generate-ddl: true
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 200MB
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKASERVER_URI:http://localhost:6868/eureka/}
+  instance:
+    prefer-ip-address: true
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          thread:
+            timeoutInMilliseconds: 30000
+ribbon:
+  ReadTimeout: 30000
+  ConnectTimeout: 30000
