@@ -32,7 +32,8 @@ public class UserService {
     @Autowired
     private BCryptPasswordEncoder encoder;
 
-    private String url = "https://openeuler70-1255566273.cos.ap-beijing.myqcloud.com/";
+    @Value("${amazon.s3.url}")
+    private String url;
 
 
     /**
