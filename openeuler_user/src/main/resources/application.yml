@@ -21,6 +21,5 @@ eureka:
       defaultZone: ${EUREKASERVER_URI:http://localhost:6868/eureka/}
   instance:
     prefer-ip-address: true
-amazon:
-  s3:
-    url: ${S3_MAVEN_URL}
+maven:
+  sls-url: ${MAVEN_SLS_URI}

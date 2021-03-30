@@ -32,8 +32,8 @@ public class UserService {
     @Autowired
     private BCryptPasswordEncoder encoder;
 
-    @Value("${amazon.s3.url}")
-    private String url;
+    @Value("${maven.sls-url}")
+    private String slsUrl;
 
 
     /**
@@ -116,7 +116,7 @@ public class UserService {
         repoUser.setId(idWorker.nextId() + "");
         repoUser.setOwnerId(ownerId);
         repoUser.setRepo(repo);
-        repoUser.setRepoDir(url+ownerId+"/"+repo);
+        repoUser.setRepoDir(slsUrl+ownerId+"/"+repo);
         repoUser.setUserName(Base64.getEncoder().encodeToString((idWorker.nextId() + "").getBytes()));
         repoUser.setPassword(Base64.getEncoder().encodeToString((idWorker.nextId() + "").getBytes()));
         repoUserDao.save(repoUser);
