@@ -6,6 +6,7 @@ import com.openeuler.user.pojo.RepoUser;
 import com.openeuler.user.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import util.IdWorker;
 
