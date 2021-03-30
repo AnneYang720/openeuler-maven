@@ -56,3 +56,5 @@ services:
 
   web:
     build: ./frontend
+    env_file:
+      - config.env

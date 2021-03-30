@@ -22,6 +22,13 @@ Vue.use(ElementUI, { locale })
 
 Vue.config.productionTip = false
 
+const {apiBaseUrl} = document.querySelector('html').dataset
+if (apiBaseUrl) {
+  Vue.prototype.$apiBaseUrl = `${apiBaseUrl}`
+} else {
+  Vue.prototype.$apiBaseUrl = process.env.BASE_API
+}
+
 new Vue({
   el: '#app',
   router,
