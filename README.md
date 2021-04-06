@@ -5,7 +5,7 @@ TOPIC_ID:70, TEAM_ID:1231586744, TEAM_NAME:AnneY
 
 本项目实现了一个高可用的Maven仓库，实现服务和存储功能，支持授权上传软件包，支持私库的分享，并加速下载能力（结合CDN）等，便于在社区中推广使用。
 
-项目运行Demo请访问：[https://maven.anneyang.me](https://maven.anneyang.me)
+项目运行Demo请访问：[https://mvn.sharpdawn.com]
 
 测试用户 [demo@gmail.com]()，密码123456。
 
@@ -14,7 +14,7 @@ TOPIC_ID:70, TEAM_ID:1231586744, TEAM_NAME:AnneY
 
 #### 使用说明
 
-高可用Maven仓库网站的项目背景、系统设计和使用说明请见《高可用Maven仓库项目说明书.pdf》
+高可用Maven仓库网站的项目背景、系统设计和使用说明请见《项目功能说明书.pdf》
 
 
 
@@ -34,6 +34,84 @@ $ vim config.env
 $ mvn package
 $ docker-compose up --build -d
 $ docker-compose ps
+```
+
+
+
+#### Maven配置
+
+在开发中，通过本地Maven直接完成制品文件的拉取，需设置仓库凭证。
+
+##### 步骤一：设置仓库凭证
+
+请在`settings.xml`文件`<servers></servers>`中设置以下仓库的访问凭证，通常`settings.xml`在`$HOME/.m2/`文件目录下。
+
+```
+<servers>
+  <server>
+    <id>your-releases</id>
+    <username>************************</username>
+    <password>************</password>
+  </server>
+  <server>
+    <id>your-snapshots</id>
+    <username>************************</username>
+    <password>************</password>
+  </server>
+</servers>
+```
+
+以上配置中的`username`和`password`为个人凭证，在相应页面上获取。
+
+##### 步骤二：配置仓库和包信息
+
+在你的`pom.xml`文件`<repositories></repositories>`节点中加入对应的仓库使用地址。
+
+```
+<repositories>
+  <repository>
+      <id>your-releases</id>
+      <url>https://service-85mfoy15-1255566273.bj.apigw.tencentcs.com/1379352418340442112/release/</url>
+      <releases>
+      <enabled>true</enabled>
+      </releases>
+      <snapshots>
+      <enabled>false</enabled>
+      </snapshots>
+  </repository>
+  <repository>
+      <id>your-snapshots</id>
+      <url>https://service-85mfoy15-1255566273.bj.apigw.tencentcs.com/1379352418340442112/snapshot/</url>
+      <releases>
+      <enabled>false</enabled>
+      </releases>
+      <snapshots>
+      <enabled>true</enabled>
+      </snapshots>
+  </repository>
+</repositories>
+```
+
+在你的`pom.xml`文件`<denpendencies></denpendencies>`节点中加入你要引用的文件信息。
+
+```
+<dependencies>
+  <dependency>
+    <groupId>[GROUP_ID]</groupId>
+    <artifactId>[ARTIFACT_ID]</artifactId>
+    <version>[VERSION]</version>
+  </dependency>
+</dependencies>
+```
+
+以上配置中的`username`和`password`为个人凭证，在相应页面上获取。
+
+##### 步骤三：拉取
+
+运行以下命令完成制品拉取。
+
+```
+mvn install
 ```
 
 

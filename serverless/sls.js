@@ -84,6 +84,7 @@ router.get(`/:user_id/:repo/:file(.*).:ext`, async (ctx) => {
     if (result !== true) throw 'Invalid user or password';
   } catch (e) {
     ctx.status = 401;
+    ctx.set('WWW-Authenticate', 'Basic');
     ctx.body = `Authentication required. Reason: ${e.message}`;
     return;
   }
