@@ -114,15 +114,6 @@ $ docker-compose ps
 mvn install
 ```
 
-##### 步骤四：上传
-
-运行以下命令完成构件上传。
-
-```
-mvn deploy
-```
-
-
 
 #### 软件架构
 
