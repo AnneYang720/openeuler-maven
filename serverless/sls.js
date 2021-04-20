@@ -34,6 +34,25 @@ async function getPreSignedURL(key) {
   })
 }
 
+// Get COS presigned url for upload
+async function getUploadPreSignedURL(key) {
+  return new Promise((resolve, reject) => {
+    cos.getObjectUrl({
+      Bucket: cosBucket,
+      Region: cosRegion,
+      Method: 'PUT',
+      Key: key,
+      Expires: 3600
+    }, (err, data) => {
+      if (err) {
+        return reject(err);
+      }
+
+      resolve(data.Url)
+    })
+  })
+}
+
 // verify repo user
 async function verifyRepoUser(userid, repo, un, pw) {
   return fetch(config.api_url, {
@@ -43,6 +62,26 @@ async function verifyRepoUser(userid, repo, un, pw) {
       'repo': repo,
       'userName': un,
       'password': pw
+    }),
+    headers: { 'Content-Type': 'application/json' },
+  })
+    .then(res => res.json())
+    .then(json => {
+      if (json.flag !== true) throw json.message;
+      return json.data;
+    })
+    .catch(e => { throw new Error(`User validation failed. Reason: ${e.message}`); });
+}
+
+// save file info
+async function saveInfo(groupId, artifactId, version, packaging, userid, repo) {
+  return fetch(config.api_url_save+'/'+userid+'/'+repo, {
+    method: 'post',
+    body: JSON.stringify({
+      'groupId': groupId,
+      'artifactId': artifactId,
+      'version': version,
+      'packaging': packaging
     }),
     headers: { 'Content-Type': 'application/json' },
   })
@@ -93,6 +132,42 @@ router.get(`/:user_id/:repo/:file(.*).:ext`, async (ctx) => {
   let objectKey = ctx.path;
   try {
     let url = await getPreSignedURL(objectKey);
+    let headers = {
+      'Access-Control-Allow-Origin': '*',
+    };
+    ctx.set(headers);
+    ctx.redirect(url);
+  } catch (e) {
+    ctx.status = 400;
+    ctx.set({ "Content-Type": "text/plain" });
+    ctx.body = e;
+  }
+})
+
+// Match all repo files upload
+router.put(`/:user_id/:repo/:file(.*).:ext`, async (ctx) => {
+  // http basic auth
+  console.log(ctx)
+  try {
+    var [un, pw] = parseAuth(ctx.get('authorization'));
+
+    let result = await verifyRepoUser(ctx.params.user_id, ctx.params.repo, un, pw);
+    if (result !== true) throw 'Invalid user or password';
+    if(ctx.params.repo!='xml'){
+      let result = await saveInfo(ctx.groupId, ctx.artifactId,  ctx.version,  ctx.packaging, ctx.params.user_id, ctx.params.repo);
+      if (result !== true) throw 'Save info failure';
+    }
+  } catch (e) {
+    ctx.status = 401;
+    ctx.set('WWW-Authenticate', 'Basic');
+    ctx.body = `Authentication required. Reason: ${e.message}`;
+    return;
+  }
+
+  // redirect to presigned object url
+  let objectKey = ctx.path;
+  try {
+    let url = await getUploadPreSignedURL(objectKey);
     let headers = {
       'Access-Control-Allow-Origin': '*',
     };

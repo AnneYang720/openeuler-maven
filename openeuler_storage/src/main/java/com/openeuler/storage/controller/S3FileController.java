@@ -130,6 +130,17 @@ public class S3FileController {
     }
 
     /**
+     * 保存文件信息
+     *
+     * @param fileInfo
+     */
+    @PostMapping(value = "/save/{userId}/{repo}")
+    public Result saveInfo(@PathVariable String userId, @PathVariable String repo, @RequestBody FileInfo fileInfo) {
+        s3FileService.saveInfo(fileInfo, repo, userId);
+        return new Result(true, StatusCode.OK, "文件信息保存成功");
+    }
+
+    /**
      * 删除整包文件
      *
      * @param repo

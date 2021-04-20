@@ -9,4 +9,6 @@ config.cos = {
 
 config.api_url = 'USER_VALIDATION_API';
 
+config.api_url_save = 'USER_SAVEINFO_API';
+
 module.exports = config;
