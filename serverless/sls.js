@@ -150,11 +150,22 @@ router.put(`/:user_id/:repo/:file(.*).:ext`, async (ctx) => {
   console.log(ctx)
   try {
     var [un, pw] = parseAuth(ctx.get('authorization'));
+    var file = 'a/b/c/artifact/version/artifact-version';
+    
+    var version = file.split('-')[file.split('-').length - 1];
+    
+    var artifactId = file.split('/')[file.split('/').length - 3];
+    
+    var group = '';
+    for (i=0; i < file.split('/').length-3; i++){
+      group = group+file.split('/')[i]+'/';
+    }
+    var groupId = group.substring(0,group.length-1);
 
     let result = await verifyRepoUser(ctx.params.user_id, ctx.params.repo, un, pw);
     if (result !== true) throw 'Invalid user or password';
-    if(ctx.params.repo!='xml'){
-      let result = await saveInfo(ctx.groupId, ctx.artifactId,  ctx.version,  ctx.packaging, ctx.params.user_id, ctx.params.repo);
+    if(ctx.params.ext!='xml'){
+      let result = await saveInfo(groupId, artifactId, version, ctx.params.ext, ctx.params.user_id, ctx.params.repo);
       if (result !== true) throw 'Save info failure';
     }
   } catch (e) {
